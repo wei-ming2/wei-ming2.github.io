@@ -42,24 +42,6 @@ $("#send-update").addEventListener("click", async () => {
   $("#disconnect").disabled = false;
   busy = false;
 });
-const frames = {
-  main: ["main_thread", 48.2, "100%"],
-  render: ["renderVNodeTree", 31.1, "64.5%"],
-  gc: ["gcSync", 17.1, "35.5%"],
-  diff: ["diffProps", 10.8, "22.4%"],
-  layout: ["layoutPass", 20.3, "42.1%"],
-  sweep: ["markSweep", 17.1, "35.5%"],
-};
-$$("[data-frame]").forEach((button) =>
-  button.addEventListener("click", () => {
-    $$("[data-frame]").forEach((b) =>
-      b.classList.toggle("selected", b === button),
-    );
-    const [name, time, percent] = frames[button.dataset.frame];
-    $("#trace-readout").textContent =
-      `${name} · ${time} ms · ${percent} of frame`;
-  }),
-);
 $("#motion-toggle").addEventListener("click", () => {
   const enabled = $("#motion-toggle").getAttribute("aria-checked") !== "true";
   $("#motion-toggle").setAttribute("aria-checked", String(enabled));
@@ -101,6 +83,24 @@ function renderMarkdown() {
 }
 $("#markdown-source").addEventListener("input", renderMarkdown);
 renderMarkdown();
+const portfolioPreview = $(".portfolio-preview");
+const portfolioBreakpoints = $$("[data-preview-breakpoint]");
+const portfolioLayouts = {
+  375: "Mobile",
+  768: "Tablet",
+  1440: "Desktop",
+};
+portfolioBreakpoints.forEach((button) => {
+  button.addEventListener("click", () => {
+    const width = button.dataset.previewBreakpoint;
+    portfolioPreview.dataset.previewWidth = width;
+    portfolioBreakpoints.forEach((option) => {
+      option.setAttribute("aria-pressed", String(option === button));
+    });
+    portfolioPreview.querySelector(".portfolio-preview-caption").textContent =
+      `${portfolioLayouts[width]} layout · ${width}px reference`;
+  });
+});
 $$("[data-filter]").forEach((button) =>
   button.addEventListener("click", () => {
     const filter = button.dataset.filter;
@@ -193,43 +193,6 @@ browser event
         The useful next experiment would be two simultaneous offline edits,
         followed by a deterministic merge. That is a better test than adding
         more dots to a network diagram.
-      </p>
-    `,
-  },
-  traceflow: {
-    label: "PROJECT 02 / IMPLEMENTATION NOTES",
-    title: "TraceFlow: keeping the profiler responsive",
-    body: /* HTML */ `
-      <p>
-        A flamegraph turns nested work into widths. The widest stack is often a
-        better place to begin than the function with the most intimidating name.
-      </p>
-      <h3>Separate data from pixels</h3>
-      <p>
-        A worker can parse trace data and produce compact buffers. The rendering
-        layer can then draw visible spans without rebuilding a document tree for
-        every event.
-      </p>
-      <p>
-        Moving work into a worker is only part of the job. Copying a large
-        object between threads can itself be expensive. Transferable buffers and
-        careful ownership matter.
-      </p>
-      <h3>A useful interaction budget</h3>
-      <p>
-        Panning and zooming should work from the visible range, not scan the
-        entire trace. Hit testing should identify the span under the pointer
-        without redrawing everything else.
-      </p>
-      <h3>About the sample</h3>
-      <p>
-        The embedded preview uses illustrative timing data. Click a stack to see
-        its duration and share of the frame. The labels are intentionally small
-        enough to show how nesting and width help you navigate.
-      </p>
-      <p>
-        No production event-count or frame-rate claims are made here. Those
-        require a benchmark, a dataset, and a named test machine.
       </p>
     `,
   },
@@ -431,9 +394,9 @@ source files
       <h3>Built simply</h3>
       <p>
         The page is buildless HTML, CSS, and JavaScript. The network diagram is
-        SVG; the profiler, switch, and Markdown preview use browser-native
-        controls. The résumé has a dedicated print stylesheet for saving as a
-        PDF.
+        SVG. The portfolio preview, switch, and Markdown preview use
+        browser-native controls. The résumé section displays the published PDF with open and
+        download links.
       </p>
       <h3>Design references</h3>
       <p>
@@ -510,16 +473,9 @@ reader.addEventListener("click", (e) => {
   )
     reader.close();
 });
-$("#print-resume").addEventListener("click", () => window.print());
 $("#copy-email").addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText("fooweiming1@gmail.com");
-    $("#copy-email").textContent = "Copied ✓";
-    $("#copy-status").textContent = "Copied fooweiming1@gmail.com.";
-  } catch {
-    $("#copy-status").textContent =
-      "Copy unavailable. Select fooweiming1@gmail.com to copy it manually.";
-  }
+  await navigator.clipboard.writeText("fooweiming1@gmail.com");
+  $("#copy-email").textContent = "Copied ✓";
 });
 const sections = $$("main>section");
 if ("IntersectionObserver" in window) {

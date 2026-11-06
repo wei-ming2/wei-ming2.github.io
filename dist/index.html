@@ -290,60 +290,98 @@
 					</div>
 				</article>
 				<div class="project-pair">
-					<article class="project" data-category="systems">
-						<div class="trace-preview">
+					<article class="project" data-category="tools">
+						<div class="portfolio-preview" data-preview-width="1440">
 							<div class="preview-top">
-								<span>traceflow / frame 042</span><span>CLICK A STACK</span>
+								<span>recursive_viewport</span>
+								<span>CLICK BREAKPOINT TO RESIZE</span>
 							</div>
-							<div
-								class="flamegraph"
-								aria-label="Interactive sample performance trace"
-							>
-								<button class="flame root" data-frame="main">
-									main_thread <small>48.2 ms</small>
-								</button>
-								<div class="flame-row">
-									<button class="flame render" data-frame="render">
-										renderVNodeTree <small>31.1</small></button><button class="flame gc" data-frame="gc">
-										gcSync <small>17.1</small>
-									</button>
+							<div class="portfolio-preview-stage">
+								<div class="portfolio-breakpoints" role="group" aria-label="Portfolio preview width">
+									<button type="button" data-preview-breakpoint="375" aria-pressed="false">375px</button>
+									<button type="button" data-preview-breakpoint="768" aria-pressed="false">768px</button>
+									<button type="button" data-preview-breakpoint="1440" aria-pressed="true">1440px</button>
 								</div>
-								<div class="flame-row">
-									<button class="flame diff" data-frame="diff">
-										diffProps</button><button class="flame layout" data-frame="layout">
-										layoutPass</button><button class="flame sweep" data-frame="sweep">
-										markSweep
-									</button>
+								<div class="portfolio-preview-window" aria-hidden="true">
+									<div class="portfolio-window-bar">
+										<span class="portfolio-window-dots"><i></i><i></i><i></i></span>
+										<span class="portfolio-window-address">wei-ming2.github.io</span>
+									</div>
+									<div class="portfolio-mini-layout">
+										<div class="portfolio-mini-sidebar">
+											<div class="portfolio-mini-profile">
+												<strong class="portfolio-mini-brand">wm<span></span></strong>
+												<b>Foo Wei Ming</b>
+												<span>SUTD CSD Undergrad</span>
+											</div>
+											<ol class="portfolio-mini-nav">
+												<li><span>01</span>About</li>
+												<li class="portfolio-mini-active"><span>02</span>Projects</li>
+												<li><span>03</span>Experience</li>
+												<li><span>04</span>Writing</li>
+												<li><span>05</span>Résumé</li>
+												<li><span>06</span>Contact</li>
+											</ol>
+											<div class="portfolio-mini-location">
+												<span>1.34° N, 103.96° E</span>
+												<span>Singapore · SUTD</span>
+											</div>
+										</div>
+										<div class="portfolio-mini-content">
+											<div class="portfolio-mini-topline">
+												<span>02 / Projects</span><span>4 selected works</span>
+											</div>
+											<div class="portfolio-mini-projects">
+												<div class="portfolio-mini-project">
+													<div class="portfolio-mini-project-title">
+														<strong>TraceFlow</strong><span>01</span>
+													</div>
+													<b>Flamegraph Profiler</b>
+													<div class="portfolio-mini-graphic portfolio-mini-flame">
+														<i></i><i></i><i></i><i></i><i></i>
+													</div>
+													<span class="portfolio-mini-stack">Wasm / Rust</span>
+												</div>
+												<div class="portfolio-mini-project">
+													<div class="portfolio-mini-project-title">
+														<strong>Prism UI</strong><span>02</span>
+													</div>
+													<b>Adaptive Design Token</b>
+													<div class="portfolio-mini-graphic portfolio-mini-token">
+														<i></i><span><i></i><i></i></span>
+													</div>
+													<span class="portfolio-mini-stack">React / CSS Vars</span>
+												</div>
+											</div>
+											<div class="portfolio-mini-footer">
+												<span>Showing 2 of 4 interactive cards</span><span>Grid view</span>
+											</div>
+										</div>
+									</div>
 								</div>
-								<div class="flame-leaves" aria-hidden="true">
-									<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-								</div>
+								<p class="portfolio-preview-caption" role="status">
+									Desktop layout · 1440px reference
+								</p>
 							</div>
-							<div class="trace-readout" id="trace-readout" role="status">
-								main_thread · 48.2 ms · 100% of frame
-							</div>
-							<span class="preview-caption"
-								>A sample trace, made legible.</span>
 						</div>
-						<div class="compact-body">
+						<div class="compact-body portfolio-card-details">
 							<div class="project-title-row">
-								<h3>
-									TraceFlow
-									<span class="placeholder-inline">/ placeholder</span>
-								</h3>
+								<h3>This Site <span>/ portfolio</span></h3>
 								<span class="project-year">02</span>
 							</div>
-							<p>Finding the expensive frame.</p>
+							<p>A portfolio that's also a project.</p>
 							<p class="project-summary">
-								A flamegraph viewer that moves trace rendering off the main
-								thread. Making a performance tool that doesn’t become the
-								performance problem.
+								Designed in Stitch, built with Codex, and tuned by hand. A portfolio for
+								my projects, experience, and résumé, with interactive demos and
+								keyboard-accessible reading panels.
 							</p>
-							<span class="tech">TypeScript / WebGL2 / Workers</span><button class="text-link" data-story="traceflow">
-								Implementation notes ↗
-							</button>
+							<span class="tech">HTML / CSS / JavaScript</span>
+							<a class="text-link" href="https://github.com/wei-ming2/wei-ming2.github.io/" target="_blank" rel="noopener noreferrer">
+								How it's made ↗
+							</a>
 						</div>
 					</article>
+
 					<article class="project" data-category="tools">
 						<div class="prism-preview">
 							<div class="preview-top">
@@ -390,6 +428,7 @@
 						</div>
 					</article>
 				</div>
+				
 				<article class="project markdown-project" data-category="tools">
 					<div class="markdown-preview">
 						<div class="preview-top">
@@ -437,14 +476,6 @@ A compiler should get out of your way.
 						</button>
 					</div>
 				</article>
-				<div class="section-footnote">
-					<span>↳</span>
-					<p>
-						AlphaReGen is documented in my résumé. HyperSync, TraceFlow, Prism
-						UI, and MarkdownPress remain placeholders from the original
-						design. Their controls are local demonstrations.
-					</p>
-				</div>
 			</section>
 			<section id="experience">
 				<div class="section-heading">
@@ -632,6 +663,7 @@ A compiler should get out of your way.
 							I’d love to hear what you're working on. 
 							If you have an interesting opportunity or just want to connect, let's talk.
 						</p>
+
 						<div class="contact-email">
 							<a href="mailto:fooweiming1@gmail.com">fooweiming1@gmail.com</a><button id="copy-email" aria-label="Copy email address">
 								Copy <span aria-hidden="true">⧉</span>
@@ -642,6 +674,7 @@ A compiler should get out of your way.
 							<a href="https://github.com/wei-ming2" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
 						</div>
 					</div>
+
 					<div class="colophon">
 						<h3>About this site</h3>
 						<p>
@@ -651,22 +684,23 @@ A compiler should get out of your way.
 						<p>
 							Project illustrations are interactive studies, not screenshots of finished products.
 						</p>
-						<button class="text-link" data-story="colophon">Colophon & references ↗</button>
+						<!-- TODO: Move to `02 Projects` -->
+						<button class="text-link" data-story="colophon">Colophon & references ↗</button> 
 					</div>
 				</div>
 			</section>
 			<footer>
-				<span
-					>© 2026 Foo Wei Ming
-					<span class="footer-separator">/</span> Personal portfolio</span><a href="#about">Back to the top ↑</a>
+				<span>© 2026 Foo Wei Ming<span class="footer-separator">/</span> Personal portfolio</span>
+				<a href="#about">Back to the top ↑</a>
 			</footer>
 		</main>
 	</div>
+
+	<!-- TODO: figure out what is `dialog` / `reader-xxx` -->
 	<dialog id="reader" aria-labelledby="reader-title">
 		<div class="reader-toolbar">
-			<span id="reader-label" class="eyebrow"></span><button id="close-reader" aria-label="Close reading panel">
-				Close ×
-			</button>
+			<span id="reader-label" class="eyebrow"></span>
+			<button id="close-reader" aria-label="Close reading panel">Close ×</button>
 		</div>
 		<h2 id="reader-title"></h2>
 		<div id="reader-body"></div>
