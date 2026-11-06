@@ -1,8 +1,9 @@
-# Keep the GitHub repository limited to the website and its README.
+# Specify files / directories to track
 /*
 !/.gitignore
 !/README.md
 !/dist/
+!/.github/
 
 # Ignore operating-system files, including inside the website assets.
 .DS_Store
