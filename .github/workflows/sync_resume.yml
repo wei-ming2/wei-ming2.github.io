@@ -7,6 +7,10 @@ on:
   push:
     branches:
       - redesign
+    # Do not trigger again when this workflow only updates the generated files.
+    paths-ignore:
+      - 'dist/images/resume.pdf'
+      - 'dist/images/resume.png'
 
 jobs:
   sync-resume:
@@ -26,50 +30,65 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Step 3: Install dependencies and download PDF from url (repo variable)
+      # Step 3: Download `resume.tex` from Overleaf (repo secret)
       - name: Download resume from Overleaf
         env:
-          OVERLEAF_URL: ${{ vars.OVERLEAF_RESUME_URL }}
+          OVERLEAF_URL: ${{ secrets.OVERLEAF_RESUME_URL }}
         run: |
-          [ -n "$OVERLEAF_URL" ] || { echo "OVERLEAF_READ_URL variable is empty or missing"; exit 1; }
           git clone --depth 1 --branch v2 https://github.com/Sbrjt/overleaf-resume-syncer /tmp/syncer
           pip install -q -r /tmp/syncer/requirements.txt pymupdf
           python /tmp/syncer/download_from_overleaf.py "$OVERLEAF_URL"
-          test -f resume.pdf || { echo "resume.pdf was not downloaded"; exit 1; }
 
-      # Step 4: Execute inline Python script to sanitize private details and export PNG
-      - name: Redact Phone & Generate PDF and PNG
+      # Step 4: Delete the downloaded PDF and remove the phone number from the LaTeX source
+      - name: Remove phone number from LaTeX source
         run: |
-          python - << 'EOF'
-          import fitz, sys
+          rm -f resume.pdf
+          python - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path("resume.tex")
+          src = path.read_text(encoding="utf-8")
+
+          # Remove the phone link and its preceding header separator.
+          pattern = r'\\quad\s*\|\s*\\quad\s*\\href\{tel:[^}]*\}\{[^}]*\}\s*'
+          src = re.sub(pattern, "", src)
+
+          path.write_text(src, encoding="utf-8")
+          PY
+
+      # Step 5: Set up Tectonic and cache its downloaded LaTeX packages
+      - name: Cache Tectonic packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/Tectonic
+          key: ${{ runner.os }}-tectonic-0.17.0-${{ hashFiles('resume.tex') }}
+          restore-keys: |
+            ${{ runner.os }}-tectonic-0.17.0-
+
+      - name: Set up Tectonic
+        uses: wtfjoke/setup-tectonic@v4
+        with:
+          tectonic-version: 0.17.0
+
+      # Step 6: Compile the cleaned source into resume.pdf
+      - name: Compile resume
+        run: tectonic resume.tex
+
+      # Step 7: Export PDF and 300 DPI PNG
+      - name: Export PDF and PNG
+        run: |
+          python - <<'PY'
+          import fitz
 
           doc = fitz.open("resume.pdf")
-          page = doc[0]
-
-          hits = 0
-          # Find any clickable link starting with "tel:"
-          for link in page.get_links():
-              if link.get("uri", "").startswith("tel:"):
-                  rect = link["from"]
-                  rect.x0 -= 25  # Extend box 25pt left to also erase "\quad|\quad"
-                  page.add_redact_annot(rect, fill=(1, 1, 1))
-                  page.delete_link(link)  # Remove the clickable hyperlink itself
-                  hits += 1
-
-          # Stop before publishing anything if no phone link was found
-          if hits == 0:
-              sys.exit("ERROR: no tel: link found, nothing was redacted")
-
-          # Permanently erase the underlying text inside the box
-          page.apply_redactions()
-
-          # Save cleaned PDF and 300 DPI PNG
           doc.save("dist/images/resume.pdf", garbage=4, deflate=True)
-          page.get_pixmap(dpi=300).save("dist/images/resume.png")
-          EOF
-          rm -rf resume.pdf resume.tex temp
+          doc[0].get_pixmap(dpi=300).save("dist/images/resume.png")
+          PY
+          rm -f resume.tex resume.pdf
+          rm -rf temp
 
-      # Step 5: Commit and push changes back to github
+      # Step 8: Commit and push changes back to github
       - name: Push resume to github
         run: |
           # Use official GitHub Actions bot identity for automated commits
@@ -77,5 +96,5 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add dist/images/resume.pdf dist/images/resume.png
-          git commit -m "updated resume (both PDF & PNG) from Overleaf" || exit 0
+          git diff --cached --quiet || git commit -m "updated resume (both PDF & PNG) from Overleaf"
           git push
