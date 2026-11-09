@@ -20,38 +20,33 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Step 2: Read resume from Overleaf > `output.pdf`
-      - name: Read resume from Overleaf
-        env:
-          OVERLEAF_EMAIL: ${{ secrets.OVERLEAF_EMAIL }}
-          OVERLEAF_PASSWORD: ${{ secrets.OVERLEAF_PASSWORD }}
-          OVERLEAF_RESUME_ID: ${{ secrets.OVERLEAF_RESUME_ID }}
-        run: |
-          npm install -g @aloth/olcli
-          olcli pdf "$OVERLEAF_RESUME_ID" -o output.pdf
-
-      # Step 3: Set up Python runtime for document processing
+      # Step 2: Set up Python for document processing
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # Step 4: Install PyMuPDF (fitz), which handles PDF redaction and high-res image rendering
-      - name: Install Redaction & Rendering Dependencies
+      # Step 3: Install dependencies and download PDF from url (repo variable)
+      - name: Download resume from Overleaf
+        env:
+          OVERLEAF_URL: ${{ vars.OVERLEAF_RESUME_URL }}
         run: |
-          python -m pip install --upgrade pip
-          pip install pymupdf
+          [ -n "$OVERLEAF_URL" ] || { echo "OVERLEAF_READ_URL variable is empty or missing"; exit 1; }
+          git clone --depth 1 --branch v2 https://github.com/Sbrjt/overleaf-resume-syncer /tmp/syncer
+          pip install -q -r /tmp/syncer/requirements.txt pymupdf
+          python /tmp/syncer/download_from_overleaf.py "$OVERLEAF_URL"
+          test -f resume.pdf || { echo "resume.pdf was not downloaded"; exit 1; }
 
-      # Step 5: Execute inline Python script to sanitize private details and export PNG
+      # Step 4: Execute inline Python script to sanitize private details and export PNG
       - name: Redact Phone & Generate PDF and PNG
         run: |
-          pip install pymupdf
           python - << 'EOF'
-          import fitz
+          import fitz, sys
 
-          doc = fitz.open("output.pdf")
+          doc = fitz.open("resume.pdf")
           page = doc[0]
 
+          hits = 0
           # Find any clickable link starting with "tel:"
           for link in page.get_links():
               if link.get("uri", "").startswith("tel:"):
@@ -59,23 +54,28 @@ jobs:
                   rect.x0 -= 25  # Extend box 25pt left to also erase "\quad|\quad"
                   page.add_redact_annot(rect, fill=(1, 1, 1))
                   page.delete_link(link)  # Remove the clickable hyperlink itself
+                  hits += 1
+
+          # Stop before publishing anything if no phone link was found
+          if hits == 0:
+              sys.exit("ERROR: no tel: link found, nothing was redacted")
 
           # Permanently erase the underlying text inside the box
           page.apply_redactions()
 
           # Save cleaned PDF and 300 DPI PNG
-          doc.save("images/resume.pdf", garbage=4, deflate=True)
-          page.get_pixmap(dpi=300).save("images/resume.png")
+          doc.save("dist/images/resume.pdf", garbage=4, deflate=True)
+          page.get_pixmap(dpi=300).save("dist/images/resume.png")
           EOF
-          rm output.pdf
+          rm -rf resume.pdf resume.tex temp
 
-      # Step 6: Commit and push changes back to github
+      # Step 5: Commit and push changes back to github
       - name: Push resume to github
         run: |
           # Use official GitHub Actions bot identity for automated commits
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add images/resume.pdf images/resume.png
+          git add dist/images/resume.pdf dist/images/resume.png
           git commit -m "updated resume (both PDF & PNG) from Overleaf" || exit 0
           git push
