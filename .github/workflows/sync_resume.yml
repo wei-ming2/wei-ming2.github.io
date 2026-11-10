@@ -4,13 +4,10 @@ name: Sync Resume from Overleaf
 on:
   # Manual trigger: runs in "Actions" tab > "Run workflow" button
   workflow_dispatch:
-  push:
-    branches:
-      - redesign
-    # Do not trigger again when this workflow only updates the generated files.
-    paths-ignore:
-      - 'dist/images/resume.pdf'
-      - 'dist/images/resume.png'
+
+  # Automatic trigger: runs on the 1st of every month at 8am Singapore time
+  schedule:
+    - cron: '0 0 1 * *'
 
 jobs:
   sync-resume:
@@ -88,13 +85,18 @@ jobs:
           rm -f resume.tex resume.pdf
           rm -rf temp
 
-      # Step 8: Commit and push changes back to github
+      # Step 8: Commit and push changes back to github (ignore PDF due metadata: ie date)
       - name: Push resume to github
         run: |
           # Use official GitHub Actions bot identity for automated commits
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add dist/images/resume.png
 
-          git add dist/images/resume.pdf dist/images/resume.png
-          git diff --cached --quiet || git commit -m "updated resume (both PDF & PNG) from Overleaf"
-          git push
+          if ! git diff --cached --quiet -- dist/images/resume.png; then
+            # If PNG changed, commit both PDF and PNG
+            git add dist/images/resume.pdf
+            git commit -m "updated resume (both PDF & PNG) from Overleaf"
+            git push
+          fi
