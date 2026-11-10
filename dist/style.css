@@ -1340,6 +1340,9 @@ h4 {
 .writing-list {
   display: grid;
 }
+.writing-list > button[hidden] {
+  display: none;
+}
 .writing-list > button {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -1467,6 +1470,7 @@ dialog {
   width: calc(100% - 32px);
   max-width: 690px;
   max-height: 87dvh;
+  font-family: var(--sans);
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--line);
@@ -1509,6 +1513,11 @@ dialog h2 {
 }
 #reader-body p {
   margin: 13px 0;
+}
+#reader-body hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 24px 0;
 }
 #reader-body pre {
   white-space: pre-wrap;

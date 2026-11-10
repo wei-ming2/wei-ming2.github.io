@@ -270,194 +270,187 @@ source files
       </p>
     `,
   },
-  "note-local": {
-    label: "FIELD NOTE / DISTRIBUTED SYSTEMS",
-    title: "The interesting part starts when a peer goes offline",
-    body: /* HTML */ `
-      <p>
-        When every peer is online and every update arrives in order, a shared
-        document looks straightforward. A counter goes up. A message goes out.
-        The other screen changes.
-      </p>
-      <p>Now disconnect one peer. Edit on both sides. Reconnect.</p>
-      <h3>Two histories, one screen</h3>
-      <p>
-        There is no longer a single obvious “latest” version. Each side has
-        information the other has never seen. A timestamp can order events, but
-        it cannot explain the author’s intent.
-      </p>
-      <p>
-        That makes the conflict policy part of the product. Last-writer-wins
-        might be fine for a status flag. It would be surprising for two
-        paragraphs that someone spent an hour writing.
-      </p>
-      <h3>Make the failure repeatable</h3>
-      <p>
-        A useful test harness does more than send random traffic. It pauses a
-        peer, records an operation, delays another message, and then replays
-        that exact sequence. If the result differs between runs, debugging
-        becomes much harder.
-      </p>
-      <p>
-        The first thing worth building is often the failure scenario rather than
-        the happy-path animation.
-      </p>
-      <h3>Further reading</h3>
-      <p>
-        <a
-          href="https://www.inkandswitch.com/essay/local-first/"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Local-first software — Ink & Switch</a
-        >
-        is a useful starting point for the product questions that sit alongside
-        the technical ones.
-      </p>
-    `,
-  },
-  "note-perf": {
-    label: "FIELD NOTE / BROWSER PERFORMANCE",
-    title: "A fast renderer can still have a slow interface",
-    body: /* HTML */ `
-      <p>
-        Suppose a chart draws quickly once it has its data. It can still feel
-        slow if parsing, copying, and preparing that data blocks the interaction
-        immediately before the draw.
-      </p>
-      <h3>Follow the whole trip</h3>
-      <p>
-        A trace file must be read, parsed, transformed, transferred, indexed,
-        and finally rendered. Improving only the last step can hide the real
-        problem.
-      </p>
-      <p>
-        A worker helps with CPU work, but it introduces a boundary. Sending a
-        deeply nested object across that boundary may require a copy. A
-        transferred buffer changes ownership instead, which can be cheaper, but
-        requires a plan for who gets to use it next.
-      </p>
-      <h3>Measure an interaction</h3>
-      <p>
-        “Time to draw” is useful, but “time from pointer input to visible
-        response” is closer to what the person using the tool experiences. Those
-        measurements can lead to different priorities.
-      </p>
-      <p>
-        The next experiment: keep the renderer unchanged and move only the
-        parser. Then measure again. One change makes the result easier to
-        explain.
-      </p>
-    `,
-  },
-  "note-small": {
-    label: "FIELD NOTE / BUILDING & LEARNING",
-    title: "The version I should have built first",
-    body: /* HTML */ `
-      <p>
-        The first plan tends to include a parser, a cache, a plugin system, a
-        file watcher, and a configuration format. That is a lot of work before a
-        single page exists.
-      </p>
-      <h3>One input, one output</h3>
-      <p>
-        A better first milestone is one Markdown file producing one HTML file.
-        No folder traversal. No theme. No watch mode. Just a result you can open
-        in a browser.
-      </p>
-      <p>
-        That version tests the part that matters most: whether the idea is
-        pleasant to use at all. It also gives every later feature something
-        concrete to preserve.
-      </p>
-      <h3>Write down the stopping point</h3>
-      <p>
-        For a shell: run one external command. For a state sync experiment: send
-        one operation between two peers. For a profiler: draw one recorded
-        frame.
-      </p>
-      <p>
-        The smaller version is often the one that gets finished, understood, and
-        eventually replaced with something better.
-      </p>
-    `,
-  },
   colophon: {
     label: "ABOUT THIS SITE",
     title: "A personal site with room for the details",
     body: /* HTML */ `
       <p>
-        This is Foo Wei Ming’s personal portfolio. Identity, contact details,
-        education, experience, AlphaReGen, leadership, and technical skills are
-        taken from the supplied résumé. Projects and writing not covered by the
-        résumé remain as labeled placeholders.
+        I built this space to document my academic journey, professional experiences, projects and interests. 
+        It is a space to showcase what I have worked on, reflect on what I have learnt, and share what I hope to explore next.
       </p>
-      <h3>Built simply</h3>
+      <h3>Built with</h3>
       <p>
-        The page is buildless HTML, CSS, and JavaScript. The network diagram is
-        SVG. The portfolio preview, switch, and Markdown preview use
-        browser-native controls. The résumé section displays the published PDF with open and
-        download links.
+        The visual direction was developed in Stitch, with Codex assisting in the implementation. 
+        The website is built using plain HTML, CSS and JavaScript. 
+        SVG powers the custom visual elements.
+      </p>
+      <p>
+        The code and final details were reviewed and refined by hand. 
+        The design uses Manrope and JetBrains Mono typography, paired with a warm neutral palette, charcoal text and a clay accent.
       </p>
       <h3>Design references</h3>
       <p>
-        The
-        <a
-          href="https://github.com/Evavic44/portfolio-ideas"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Portfolio Ideas collection</a
-        >
+        The <a href="https://github.com/Evavic44/portfolio-ideas" target="_blank" rel="noopener noreferrer">Portfolio Ideas collection</a>
         informed the broader direction.
-        <a
-          href="https://www.taniarascia.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Tania Rascia</a
-        >
-        and
-        <a
-          href="https://victoreke.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Victor Eke</a
-        >
-        were references for giving projects, writing, and experience enough
-        room.
-      </p>
-      <p>
-        The typography pairs Manrope with JetBrains Mono. Warm paper, charcoal,
-        and a single clay accent keep the interface quiet without stripping out
-        the content.
-      </p>
-      <h3>Before making it yours</h3>
-      <p>
-        The original sample projects and articles have been preserved where the
-        résumé does not provide replacements. Their placeholder labels
-        distinguish them from the documented profile. The GitHub and LinkedIn
-        links are the links embedded in the résumé.
+        <a href="https://www.taniarascia.com/" target="_blank" rel="noopener noreferrer">Tania Rascia</a>
+        and <a href="https://victoreke.com/" target="_blank" rel="noopener noreferrer">Victor Eke</a>
+        inspired how projects, writing and experiences are presented with room to breathe.
       </p>
     `,
   },
 };
 const reader = $("#reader");
+const readerTitle = $("#reader-title");
+const readerBody = $("#reader-body");
+
+function showReader(label, title) {
+  $("#reader-label").textContent = label;
+  readerTitle.textContent = title;
+  reader.showModal();
+  reader.scrollTop = 0;
+}
+
+function addPlaceholderNotice() {
+  const notice = document.createElement("p");
+  notice.className = "placeholder-notice";
+  notice.textContent =
+    "Retained placeholder content from the original design; not documented in my résumé.";
+  readerBody.prepend(notice);
+}
+
 $$("[data-story]").forEach((button) =>
   button.addEventListener("click", () => {
     const story = stories[button.dataset.story];
     const placeholder = !["alpharegen", "colophon"].includes(
       button.dataset.story,
     );
-    $("#reader-label").textContent = placeholder
-      ? "PLACEHOLDER / " + story.label
-      : story.label;
-    $("#reader-title").textContent = story.title;
-    $("#reader-body").innerHTML =
-      (placeholder
-        ? '<p class="placeholder-notice">Retained placeholder content from the original design; not documented in my résumé.</p>'
-        : "") + story.body;
-    reader.showModal();
-    reader.scrollTop = 0;
+    readerBody.innerHTML = story.body;
+    if (placeholder) addPlaceholderNotice();
+    const label = placeholder ? `PLACEHOLDER / ${story.label}` : story.label;
+    showReader(label, story.title);
   }),
 );
+
+function appendThoughtText(element, content) {
+  let offset = 0;
+  for (const match of content.matchAll(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/gi)) {
+    const [markdown, label, href] = match;
+    const link = document.createElement("a");
+    link.textContent = label;
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    element.append(content.slice(offset, match.index), link);
+    offset = match.index + markdown.length;
+  }
+  element.append(content.slice(offset));
+}
+
+function renderThoughtBody(markdown) {
+  const body = document.createDocumentFragment();
+  let paragraph = [];
+  function appendParagraph() {
+    if (!paragraph.length) return;
+    const element = document.createElement("p");
+    appendThoughtText(element, paragraph.join(" "));
+    body.append(element);
+    paragraph = [];
+  }
+
+  for (const line of markdown.trim().split(/\r?\n/)) {
+    const content = line.trim();
+    const heading = content.match(/^##\s+(.+)$/);
+    if (!content || heading || content === "---") {
+      appendParagraph();
+      if (heading) {
+        const element = document.createElement("h3");
+        appendThoughtText(element, heading[1]);
+        body.append(element);
+      } else if (content === "---") {
+        body.append(document.createElement("hr"));
+      }
+    } else {
+      paragraph.push(content);
+    }
+  }
+  appendParagraph();
+  return body;
+}
+
+async function readThought(url) {
+  const response = await fetch(url, { cache: "no-cache" });
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
+
+  const markdown = (await response.text()).trim();
+  const frontMatter = markdown.match(
+    /^---\r?\n([\s\S]+?)\r?\n---\r?\n([\s\S]*)$/,
+  );
+  const article = frontMatter?.[2].trim().match(/^#[ \t]+([^\r\n]+)([\s\S]*)$/);
+  if (!article) throw new Error(`${url}: missing metadata or title`);
+
+  const metadata = Object.fromEntries(
+    Array.from(
+      frontMatter[1].matchAll(/^([a-z]+):[ \t]*(.*)$/gm),
+      ([, key, value]) => [key, value.trim()],
+    ),
+  );
+  const { category, excerpt, minutes } = metadata;
+  if (!category || !excerpt || !/^[1-9]\d*$/.test(minutes)) {
+    throw new Error(`${url}: incomplete article metadata`);
+  }
+
+  return {
+    category,
+    excerpt,
+    minutes,
+    title: article[1].trim(),
+    body: article[2],
+  };
+}
+
+function populateThoughtButton(button, { category, title, excerpt, minutes, body }) {
+  for (const [className, text] of [
+    ["note-category", category],
+    ["note-title", title],
+    ["note-excerpt", excerpt],
+    ["note-time", `${minutes} min read`],
+  ]) {
+    const span = document.createElement("span");
+    span.className = className;
+    span.textContent = text;
+    button.append(span);
+  }
+  const arrow = document.createElement("span");
+  arrow.setAttribute("aria-hidden", "true");
+  arrow.textContent = "↗";
+  button.querySelector(".note-title").append(arrow);
+
+  button.addEventListener("click", () => {
+    readerBody.replaceChildren(renderThoughtBody(body));
+    showReader(category, title);
+  });
+  button.hidden = false;
+}
+
+async function loadThoughtButton(button) {
+  const filename = button.dataset.thought;
+  const url = `thoughts/${encodeURIComponent(filename)}`;
+  let thought;
+  try {
+    thought = await readThought(url);
+  } catch {
+    const link = document.createElement("a");
+    link.className = "text-link";
+    link.href = url;
+    link.textContent = `Open ${filename} ↗`;
+    button.replaceWith(link);
+    return;
+  }
+  populateThoughtButton(button, thought);
+}
+
+$$(".writing-list > button[data-thought]").forEach(loadThoughtButton);
+
 function closeReader() {
   reader.close();
 }
