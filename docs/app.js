@@ -88,35 +88,35 @@ $("#motion-toggle").addEventListener("click", () => {
 });
 if (reduced())
   $("#motion-caption").textContent = "Your system prefers reduced motion.";
-function renderMarkdown() {
-  const fragment = document.createDocumentFragment();
-  let list = null;
-  $("#markdown-source")
-    .value.split("\n")
-    .forEach((line) => {
-      if (line.startsWith("- ")) {
-        if (!list) {
-          list = document.createElement("ul");
-          fragment.append(list);
-        }
-        const li = document.createElement("li");
-        li.textContent = line.slice(2);
-        list.append(li);
-        return;
-      }
-      list = null;
-      if (!line.trim()) return;
-      const heading = line.match(/^(#{1,3})\s+(.*)/);
-      const el = document.createElement(
-        heading ? `h${Number(heading[1].length) + 3}` : "p",
-      );
-      el.textContent = heading ? heading[2] : line;
-      fragment.append(el);
-    });
-  $("#markdown-output").replaceChildren(fragment);
-}
-$("#markdown-source").addEventListener("input", renderMarkdown);
-renderMarkdown();
+// function renderMarkdown() {
+//   const fragment = document.createDocumentFragment();
+//   let list = null;
+//   $("#markdown-source")
+//     .value.split("\n")
+//     .forEach((line) => {
+//       if (line.startsWith("- ")) {
+//         if (!list) {
+//           list = document.createElement("ul");
+//           fragment.append(list);
+//         }
+//         const li = document.createElement("li");
+//         li.textContent = line.slice(2);
+//         list.append(li);
+//         return;
+//       }
+//       list = null;
+//       if (!line.trim()) return;
+//       const heading = line.match(/^(#{1,3})\s+(.*)/);
+//       const el = document.createElement(
+//         heading ? `h${Number(heading[1].length) + 3}` : "p",
+//       );
+//       el.textContent = heading ? heading[2] : line;
+//       fragment.append(el);
+//     });
+//   $("#markdown-output").replaceChildren(fragment);
+// }
+// $("#markdown-source").addEventListener("input", renderMarkdown);
+// renderMarkdown();
 const portfolioPreview = $(".portfolio-preview");
 const portfolioBreakpoints = $$("[data-preview-breakpoint]");
 const portfolioLayouts = {
