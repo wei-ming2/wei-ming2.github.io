@@ -1,47 +1,81 @@
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-const delay = (ms) =>
-  new Promise((resolve) => setTimeout(resolve, reduced() ? 0 : ms));
-let offline = false,
-  version = 0,
-  busy = false;
-$("#disconnect").addEventListener("click", () => {
-  offline = !offline;
-  $("#disconnect").setAttribute("aria-pressed", String(offline));
-  $("#disconnect").textContent = offline ? "Reconnect SIN" : "Disconnect SIN";
-  $('[data-mesh="SIN"]').classList.toggle("offline", offline);
-  $("#sin-link").style.opacity = offline ? "0.1" : "0.6";
-  if (!offline) {
-    $('[data-mesh="SIN"] .version').textContent = `v${version}`;
-    $("#mesh-status").textContent =
-      `4 peers connected · recovered to v${version}`;
-  } else {
-    $("#mesh-status").textContent = "3 peers connected · SIN is offline";
+// DNS Exfiltration Raw: generated traffic, policy decision, receiving-side proof.
+const alphaPreview = $("#alpha-preview");
+const alphaNext = $("#alpha-next");
+if (alphaPreview && alphaNext) {
+  let stepIndex = 0;
+  let policy = "baseline";
+  const phases = ["ready", "prepare", "capture", "policy", "outcome"];
+  const stepTitles = [
+    "THE EXPERIMENT",
+    "A CREDENTIAL IS AT RISK",
+    "HIDE THE CREDENTIAL IN DNS",
+    "APPLY THE FIREWALL POLICY",
+    "CONFIRM THE CONSEQUENCE",
+  ];
+
+  function renderAlpha() {
+    const restricted = policy === "restricted";
+    const sent = stepIndex >= 2;
+    const evaluated = stepIndex >= 3;
+    const complete = stepIndex === 4;
+    const received = complete && !restricted;
+    alphaPreview.dataset.phase = phases[stepIndex];
+    alphaPreview.dataset.policy = policy;
+    $("#alpha-progress").textContent = `${stepIndex} / 4`;
+    $("#alpha-step-title").textContent = stepTitles[stepIndex];
+    $("#alpha-rule-state").textContent = restricted ? "Approved DNS only" : "Direct DNS permitted";
+    $("#alpha-capture-empty").hidden = sent;
+    $("#alpha-capture-data").hidden = !sent;
+    $("#alpha-buffer").textContent = received ? "secret" : complete ? "No data received" : "Empty";
+    $("#alpha-firewall-log").textContent = evaluated
+      ? `00:01 action=${restricted ? "drop" : "pass"}\nsrc=192.168.1.20\ndst=203.0.113.20\nproto=udp dport=53\npolicy=${restricted ? "restricted-dns" : "baseline"}\n${restricted ? "reason=unapproved-dns" : "reason=direct-dns"}`
+      : "Waiting for DNS traffic.";
+    $("#alpha-receiver-log").textContent = complete
+      ? restricted ? "No data received.\nreceived=0" : "00:07 status=complete\nmarker=www.chess.com\nrecovered=secret"
+      : evaluated && restricted ? "No requests reached the collector." : "Waiting for a transmission.";
+
+    const messages = [
+      "DNS normally looks up website addresses. Follow an internal credential hidden in those requests, then compare the firewall policies.",
+      "The attacker has access to this computer and wants to steal an internal credential. Monitored email and uploads make DNS an alternative route.",
+      "AlphaGen places one character into each DNS query name. Wireshark records these requests leaving 192.168.1.20, regardless of the firewall policy.",
+      restricted
+        ? "The collector is not an approved DNS destination. The firewall stops the requests; the sender’s capture still records what it transmitted."
+        : "The baseline policy permits direct DNS traffic to the collector. Each request carries part of the credential across the boundary.",
+      restricted
+        ? "The collector receives no credential. This DNS transfer attempt was stopped at the firewall."
+        : "The external collector reconstructs the credential: secret. The data has crossed the network boundary.",
+    ];
+    $("#alpha-status").textContent = messages[stepIndex];
+    alphaNext.textContent = complete ? "Restart ↻" : stepIndex ? "Next →" : "Begin →";
+    const activeNode = stepIndex <= 2
+      ? "generator"
+      : stepIndex === 3 || restricted ? "firewall" : "responder";
+    alphaPreview.querySelectorAll("[data-alpha-node]").forEach((node) => {
+      node.classList.toggle("is-current", node.dataset.alphaNode === activeNode);
+    });
+    alphaPreview.querySelectorAll("[data-alpha-policy]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.alphaPolicy === policy));
+    });
   }
-});
-$("#send-update").addEventListener("click", async () => {
-  if (busy) return;
-  busy = true;
-  version++;
-  $("#send-update").disabled = true;
-  $("#disconnect").disabled = true;
-  $$(".mesh-node").forEach((n) => n.classList.remove("updated"));
-  const peers = ["SFO", "ORD", "FRA", ...(offline ? [] : ["SIN"])];
-  for (const name of peers) {
-    const node = $(`[data-mesh="${name}"]`);
-    node.classList.add("updated");
-    node.querySelector(".version").textContent = `v${version}`;
-    $("#mesh-status").textContent = `Replicating v${version} → ${name}`;
-    await delay(230);
-  }
-  $("#mesh-status").textContent = offline
-    ? `v${version} replicated to 3 peers · SIN waiting`
-    : `v${version} replicated · all 4 peers agree`;
-  $("#send-update").disabled = false;
-  $("#disconnect").disabled = false;
-  busy = false;
-});
+
+  alphaNext.addEventListener("click", () => {
+    stepIndex = stepIndex === 4 ? 1 : stepIndex + 1;
+    renderAlpha();
+  });
+  alphaPreview.querySelectorAll("[data-alpha-policy]").forEach((button) => {
+    button.addEventListener("click", () => {
+      policy = button.dataset.alphaPolicy;
+      renderAlpha();
+    });
+  });
+  renderAlpha();
+  alphaNext.hidden = false;
+  alphaPreview.querySelector(".alpha-policy-toolbar").hidden = false;
+}
+
 $("#motion-toggle").addEventListener("click", () => {
   const enabled = $("#motion-toggle").getAttribute("aria-checked") !== "true";
   $("#motion-toggle").setAttribute("aria-checked", String(enabled));
@@ -117,82 +151,92 @@ $$("[data-filter]").forEach((button) =>
       ".project:not([hidden])",
     );
     $("#filter-status").textContent =
-      `Showing ${count} ${filter === "all" ? "" : filter + " "}projects`;
+      `Showing ${count} ${filter === "all" ? "" : filter + " "}project${count === 1 ? "" : "s"}`;
   }),
 );
 const stories = {
   alpharegen: {
-    label: "PROJECT / FROM MY RÉSUMÉ",
-    title: "AlphaReGen: network security simulation",
+    label: "ENGINEERING CASE STUDY / ALPHAREGEN V1",
+    title: "Traffic generation, firewall policy, and packet evidence in one testbed",
     body: /* HTML */ `
       <p>
-        AlphaReGen was my diploma final-year project at Singapore Polytechnic,
-        completed from October 2022 to March 2023 and awarded Grade A.
+        AlphaReGen combines a modular Python traffic generator/responder with a
+        segmented VMware testbed. Students generate normal and malicious traffic,
+        configure firewall policy, and examine the resulting logs and packet
+        captures. The v1 deliverable was integrated into Singapore Polytechnic’s
+        Cybersecurity Infrastructure Configuration module.
       </p>
-      <h3>My role</h3>
+      <h3>The problem and my contribution</h3>
       <p>
-        I led the team in developing a simulated attacker–target environment,
-        with a traffic generator and responder to simulate network protocols and
-        attack scenarios including DNS exfiltration and SSH versus FTP.
+        Lecturers needed practical exercises without spending each lesson setting
+        up and troubleshooting individual services. I led the five-person team
+        and built the shared software architecture, developed Port and ARP
+        exercises, and helped integrate other protocol implementations. I also
+        standardised contributed modules and troubleshot their behaviour on the
+        required Oracle Linux virtual machines. Firewall configuration and
+        testing were team deliverables.
       </p>
-      <h3>Learning through traffic analysis</h3>
+      <h3>A network with distinct trust boundaries</h3>
       <p>
-        We integrated Wireshark-based traffic analysis and a technical guide to
-        help learners identify attack patterns, distinguish normal from spoofed
-        traffic, and configure and compare pfSense and Palo Alto firewalls.
+        The VMware environment separated Inside, Outside, and Extranet/DMZ networks
+        around a firewall. A Linux cloud simulator provided routing and NAT toward
+        the external network and Internet, while a separate management client
+        provided access to the firewall interface. We exercised Inside-to-DMZ,
+        Outside-to-DMZ, and Inside-to-Outside paths, placing the generator and
+        responder where each exercise required them.
       </p>
-      <h3>Tools</h3>
-      <p>pfSense, Palo Alto firewalls, and Wireshark.</p>
+      <h3>Firewall configuration and validation</h3>
       <p>
-        <a
-          href="https://github.com/wei-ming2"
-          target="_blank"
-          rel="noopener noreferrer"
-          >GitHub profile linked in my résumé ↗</a
-        >
-      </p>
-    `,
-  },
-  hypersync: {
-    label: "PROJECT 01 / BUILD NOTES",
-    title: "HyperSync: what happens after “offline”?",
-    body: /* HTML */ `
-      <p>
-        The original idea was simple: change a piece of state in one browser,
-        then see the same state in another. The hard part begins when one of
-        those browsers loses its connection.
-      </p>
-      <h3>The shape of the system</h3>
-      <p>
-        The portfolio concept uses Rust for the state machinery, WebAssembly for
-        the browser boundary, and WebRTC data channels for peer-to-peer
-        transport. Keeping those boundaries separate makes failures easier to
-        reason about.
-      </p>
-      <pre>
-browser event
-  → local state update
-  → encode operation
-  → send to connected peers
-  → apply or reconcile on arrival</pre
-      >
-      <h3>What the preview demonstrates</h3>
-      <p>
-        The network sketch on this page is a small JavaScript simulation, not a
-        live WebRTC mesh. Disconnect SIN, send an update, and reconnect it. The
-        returning peer catches up to the latest version.
-      </p>
-      <h3>What that leaves unsolved</h3>
-      <p>
-        A single version counter only works for this ordered simulation.
-        Independent writers need conflict handling, operation identity, and a
-        clear strategy for merging concurrent edits. WebRTC also needs signaling
-        and sometimes a relay.
+        Our team configured Palo Alto and pfSense firewalls in the testbed,
+        established basic connectivity, and applied rules and security policies
+        to the generated traffic. Exercises covered scanning, brute-force
+        attempts, SQL injection, flooding, and exfiltration. We compared the
+        observed behaviour of the two firewall configurations and documented
+        the results, including cases where the tested configuration did not
+        detect the traffic.
       </p>
       <p>
-        The useful next experiment would be two simultaneous offline edits,
-        followed by a deterministic merge. That is a better test than adding
-        more dots to a network diagram.
+        The investigation workflow was to generate a known action, inspect the
+        firewall decision and Wireshark capture, change the policy, and compare
+        the evidence. We also explored URL filtering and packet-capture features.
+        These findings describe our lab configurations and test conditions;
+        detection depended on the enabled policies and inspection features.
+      </p>
+      <h3>A common framework for protocol exercises</h3>
+      <p>
+        AlphaGen selects protocol modules and coordinates AlphaRes through a TCP
+        command channel. The responder launches the selected service as a
+        subprocess. Scapy handles packet crafting for protocol headers and
+        attack scenarios, while libraries such as Paramiko, pyftpdlib, and
+        Flask with SQLite provide application conversations and target state.
+      </p>
+      <p>
+        Shared helpers handle input validation, menus, learner explanations,
+        and scenario-specific Wireshark filters. Interactive and verbose modes
+        expose inputs and response details. This structure let us integrate
+        teammates’ protocol implementations into a consistent learning workflow.
+        Cross-platform testing mattered: Scapy traffic could interact differently
+        with the Linux network stack, requiring investigation beyond the Python
+        code itself.
+      </p>
+      <h3>Delivery and engineering lessons</h3>
+      <p>
+        The handover included user and developer documentation, a firewall
+        administration guide, exported firewall configurations, and a shell
+        script for repeated setup. Together, these supported rebuilding the lab
+        and extending its exercises for teaching. The final-year project received
+        Grade A.
+      </p>
+      <p>
+        The central lesson was to connect the software action, the policy
+        decision, and the captured packet. A future revision would strengthen
+        responder readiness checks, subprocess cleanup, and automated
+        packet-capture regression checks.
+      </p>
+      <p class="alpha-case-stack">
+        Python / Scapy / Socket programming / VMware / Oracle Linux /
+        Network segmentation / NAT / Firewall policy / pfSense / Palo Alto /
+        Wireshark / Packet analysis
       </p>
     `,
   },
@@ -470,22 +514,48 @@ $("#copy-email").addEventListener("click", async () => {
   await navigator.clipboard.writeText("fooweiming1@gmail.com");
   $("#copy-email").textContent = "Copied ✓";
 });
-const sections = $$("main>section");
-if ("IntersectionObserver" in window) {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          $$("nav a").forEach((a) => {
-            const active = a.getAttribute("href") === `#${entry.target.id}`;
-            a.classList.toggle("active", active);
-            if (active) a.setAttribute("aria-current", "location");
-            else a.removeAttribute("aria-current");
-          });
-        }
-      });
-    },
-    { rootMargin: "-10% 0px -65% 0px", threshold: 0 },
-  );
-  sections.forEach((s) => observer.observe(s));
+const pageSections = $$("main > section");
+const mainNavLinks = $$(".sidebar nav > a");
+let navUpdatePending = false;
+
+function sectionAtScrollLine(sections, line) {
+  let active = sections[0];
+  for (const section of sections) {
+    if (section.getBoundingClientRect().top > line) break;
+    active = section;
+  }
+  return active;
 }
+
+function updateSidebar() {
+  navUpdatePending = false;
+  const root = document.documentElement;
+  // Include the section's scroll margin so a native fragment jump activates it.
+  const line = parseFloat(getComputedStyle(root).scrollPaddingTop) + 24;
+  const atBottom = scrollY > 0 && scrollY + innerHeight >= root.scrollHeight - 1;
+  const section = atBottom
+    ? pageSections[pageSections.length - 1]
+    : sectionAtScrollLine(pageSections, line);
+  const activeHash = `#${section.id}`;
+  for (const link of mainNavLinks) {
+    const active = link.hash === activeHash;
+    link.classList.toggle("active", active);
+    if (active) link.setAttribute("aria-current", "location");
+    else link.removeAttribute("aria-current");
+  }
+}
+
+function scheduleSidebarUpdate() {
+  if (navUpdatePending) return;
+  navUpdatePending = true;
+  requestAnimationFrame(updateSidebar);
+}
+
+addEventListener("scroll", scheduleSidebarUpdate, { passive: true });
+addEventListener("resize", scheduleSidebarUpdate);
+addEventListener("hashchange", scheduleSidebarUpdate);
+addEventListener("pageshow", scheduleSidebarUpdate);
+if ("ResizeObserver" in window) {
+  new ResizeObserver(scheduleSidebarUpdate).observe($("main"));
+}
+scheduleSidebarUpdate();

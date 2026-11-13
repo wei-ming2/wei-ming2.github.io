@@ -27,8 +27,8 @@
 			</a>
 
 			<nav aria-label="Main navigation">
-				<a href="#about" class="active"><span>01</span>About</a>
-				<a href="#projects"><span>02</span>Projects</a>
+				<a href="#about" class="active" aria-current="location"><span>01</span>About</a>
+				<a href="#projects"><span>02</span>Projects</a> 
 				<a href="#experience"><span>03</span>Experience</a>
 				<a href="#notes"><span>04</span>Thoughts</a>
 				<a href="#resume"><span>05</span>Résumé</a>
@@ -134,157 +134,135 @@
 						</h2>
 					</div>
 					<span class="section-meta"
-						>1 résumé project · 4 retained placeholders</span>
+						>1 engineering case study · 3 placeholders</span>
 				</div>
 				<div class="project-toolbar">
 					<p>
-						AlphaReGen is from my résumé. Other project entries are retained
-						placeholders.
+						The decisions, implementation, and lessons behind the résumé.
+						Other entries are design placeholders.
 					</p>
 					<div class="filters" role="group" aria-label="Filter projects">
 						<button data-filter="all" aria-pressed="true">
-							All <span>05</span></button><button data-filter="systems" aria-pressed="false">
+							All <span>04</span></button><button data-filter="systems" aria-pressed="false">
 							Systems</button><button data-filter="tools" aria-pressed="false">
 							Tools & UI
 						</button>
 					</div>
 				</div>
 				<p id="filter-status" class="sr-only" aria-live="polite">
-					Showing all 5 projects
+					Showing all 4 projects
 				</p>
-				<article class="project actual-project" data-category="systems">
+				<article id="alpharegen" class="project actual-project featured" data-category="systems" aria-labelledby="alpharegen-title">
+					<div class="alpha-preview" id="alpha-preview" data-phase="ready" data-policy="baseline">
+						<div class="preview-top alpha-preview-header">
+							<span class="alpha-demo-label">alpharegen / DNS Exfiltration Raw</span>
+							<div class="alpha-policy-toolbar" hidden>
+								<span id="alpha-policy-label">Policy</span>
+								<div class="alpha-policy-options" role="group" aria-labelledby="alpha-policy-label">
+									<button type="button" data-alpha-policy="baseline" aria-pressed="true" aria-controls="alpha-firewall-log alpha-buffer alpha-receiver-log"><span>Baseline</span></button>
+									<button type="button" data-alpha-policy="restricted" aria-pressed="false" aria-controls="alpha-firewall-log alpha-buffer alpha-receiver-log"><span>Restricted DNS</span></button>
+								</div>
+							</div>
+							<span id="alpha-progress">0 / 4</span>
+						</div>
+						<div class="alpha-network-scene" role="group" aria-label="Internal computer, firewall, and external collection server">
+							<span class="alpha-zone alpha-zone-internal">INTERNAL NETWORK</span><span class="alpha-zone alpha-zone-external">EXTERNAL NETWORK</span>
+							<span class="alpha-boundary" aria-hidden="true"></span>
+							<svg class="alpha-route-map" viewBox="0 0 900 44" preserveAspectRatio="none" aria-hidden="true">
+								<path class="alpha-wire" d="M150 22H750" />
+								<path data-alpha-path="outgoing" d="M150 22H450M295 18L301 22L295 26" />
+								<path data-alpha-path="delivered" d="M450 22H750M595 18L601 22L595 26" />
+							</svg>
+							<div class="alpha-host" data-alpha-node="generator">
+								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="10" y="3" width="40" height="28" rx="2"/><path d="M10 31L3 39H57L50 31M24 35H36"/></svg>
+								<strong>AlphaGen</strong><code>192.168.1.20</code><span>Compromised PC</span>
+								<div class="alpha-credential"><span>Internal credential</span><code aria-label="secret"><span data-alpha-byte="0">s</span><span data-alpha-byte="1">e</span><span data-alpha-byte="2">c</span><span data-alpha-byte="3">r</span><span data-alpha-byte="4">e</span><span data-alpha-byte="5">t</span></code></div>
+							</div>
+							<div class="alpha-host" data-alpha-node="firewall">
+								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="5" y="1" width="50" height="42" rx="2"/><path d="M5 15H55M5 29H55M21 1V15M40 15V29M21 29V43"/></svg>
+								<strong>Firewall</strong><code>192.168.1.1</code><span>DNS gateway</span>
+								<div class="alpha-rule-summary"><span>DNS policy</span><code id="alpha-rule-state">Direct DNS permitted</code></div>
+							</div>
+							<div class="alpha-host" data-alpha-node="responder">
+								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="14" y="1" width="32" height="42" rx="2"/><path d="M14 15H46M14 29H46M22 36H25"/></svg>
+								<strong>AlphaRes</strong><code>203.0.113.20</code><span>External collector</span>
+								<div class="alpha-buffer-summary"><span>Receiving buffer</span><code id="alpha-buffer">Empty</code></div>
+							</div>
+							<span class="alpha-stop" aria-hidden="true">×</span>
+						</div>
+						<div class="alpha-evidence-grid" id="alpha-evidence">
+							<section class="alpha-evidence alpha-capture" aria-labelledby="alpha-capture-title">
+								<div class="alpha-evidence-heading"><h4 id="alpha-capture-title">Wireshark · AlphaGen</h4><code>192.168.1.20</code></div>
+								<table aria-label="Outgoing DNS queries captured at 192.168.1.20">
+									<thead><tr><th scope="col">Time</th><th scope="col">DNS query name</th></tr></thead>
+									<tbody id="alpha-capture-data" hidden>
+										<tr><td>00:01</td><td><code>www.youtube.com.sg<mark data-alpha-byte="0">s</mark></code></td></tr>
+										<tr><td>00:02</td><td><code>www.youtube.com.sg<mark data-alpha-byte="1">e</mark></code></td></tr>
+										<tr><td>00:03</td><td><code>www.youtube.com.sg<mark data-alpha-byte="2">c</mark></code></td></tr>
+										<tr><td>00:04</td><td><code>www.youtube.com.sg<mark data-alpha-byte="3">r</mark></code></td></tr>
+										<tr><td>00:05</td><td><code>www.youtube.com.sg<mark data-alpha-byte="4">e</mark></code></td></tr>
+										<tr><td>00:06</td><td><code>www.youtube.com.sg<mark data-alpha-byte="5">t</mark></code></td></tr>
+										<tr class="alpha-end-marker"><td>00:07</td><td><code>www.chess.com</code><span> end</span></td></tr>
+									</tbody>
+								</table>
+								<p id="alpha-capture-empty">No queries sent yet.</p>
+							</section>
+							<section class="alpha-evidence alpha-firewall-evidence" aria-labelledby="alpha-firewall-title">
+								<div class="alpha-evidence-heading"><h4 id="alpha-firewall-title">Firewall event</h4><code>192.168.1.1</code></div>
+								<div class="alpha-evidence-label">Traffic record</div>
+								<pre id="alpha-firewall-log">Waiting for DNS traffic.</pre>
+							</section>
+							<section class="alpha-evidence alpha-receiver-evidence" aria-labelledby="alpha-receiver-title">
+								<div class="alpha-evidence-heading"><h4 id="alpha-receiver-title">AlphaRes terminal</h4><code>203.0.113.20</code></div>
+								<div class="alpha-evidence-label">Receive record</div>
+								<pre id="alpha-receiver-log">Waiting for a transmission.</pre>
+							</section>
+						</div>
+						<div class="alpha-preview-footer">
+							<div class="alpha-readout"><span id="alpha-step-title">THE EXPERIMENT</span><p id="alpha-status" role="status" aria-live="polite" aria-atomic="true">DNS normally looks up website addresses. Follow an internal credential hidden in those requests, then compare the firewall policies.</p></div>
+							<button type="button" id="alpha-next" aria-controls="alpha-status alpha-evidence" hidden>Begin →</button>
+						</div>
+					</div>
 					<div class="featured-body">
 						<div class="project-title-row">
-							<span class="eyebrow">FROM MY RÉSUMÉ / CYBERSECURITY</span><span class="project-year">OCT 2022 — MAR 2023</span>
+							<span class="eyebrow">FEATURED / SECURITY ENGINEERING</span><span class="project-year">OCT 2022 — MAR 2023</span>
 						</div>
-						<h3>AlphaReGen</h3>
-						<p class="project-subtitle">Network security simulation</p>
+						<h3 id="alpharegen-title">AlphaReGen</h3>
+						<p class="project-subtitle">Generate traffic. Configure the firewall. Inspect the evidence.</p>
 						<p>
-							Led a team in developing a simulated attacker–target environment
-							with a traffic generator and responder, covering network
-							protocols and attack scenarios including DNS exfiltration and
-							SSH versus FTP.
+							AlphaReGen combines a modular Python traffic generator/responder with a
+							segmented VMware testbed. Students generate normal and malicious traffic,
+							configure firewall policy, and examine the result through firewall logs
+							and Wireshark. I led the team and built the shared software architecture
+							that brought the protocol modules together.
+						</p>
+						<p class="alpha-outcome">
+							<strong>Used beyond the final-year project.</strong> AlphaReGen v1 was
+							integrated into Singapore Polytechnic’s Cybersecurity Infrastructure
+							Configuration module.
 						</p>
 						<div class="project-detail-grid">
 							<div>
-								<h4>Traffic analysis & learning</h4>
+								<h4>A network built around firewall policy</h4>
 								<p>
-									Integrated Wireshark-based traffic analysis and a technical
-									guide to help learners identify attack patterns and
-									distinguish normal from spoofed traffic.
+									Inside, Outside, and DMZ zones support traffic across trust boundaries.
+									Our team configured and tested Palo Alto and pfSense firewalls,
+									with routing/NAT, reusable configurations, and an administration guide.
 								</p>
 							</div>
 							<div>
-								<h4>Firewall comparison</h4>
+								<h4>Software that makes the network observable</h4>
 								<p>
-									Helped learners configure and compare pfSense and Palo Alto
-									firewalls. Completed as a Singapore Polytechnic diploma
-									final-year project, awarded Grade A.
+									Scapy packet crafting and protocol services share validation,
+									learner support, and Wireshark filters. Learners can connect a
+									generated action to a policy decision and the captured packets.
 								</p>
 							</div>
 						</div>
 						<div class="project-footer">
 							<span class="tech"
-								>pfSense / Palo Alto firewalls / Wireshark</span><button class="text-link" data-story="alpharegen">
-								Project details ↗
-							</button>
-						</div>
-					</div>
-				</article>
-				<article class="project featured" data-category="systems">
-					<div class="mesh-preview">
-						<div class="preview-top">
-							<span
-								><span class="preview-dot"></span> hypersync / network
-								playground</span><span>INTERACTIVE DEMO</span>
-						</div>
-						<svg
-							class="mesh"
-							viewBox="0 0 730 230"
-							role="img"
-							aria-label="A four-node replication simulation connecting San Francisco, Chicago, Frankfurt, and Singapore"
-						>
-							<g class="mesh-grid">
-								<path
-									d="M0 46H730M0 92H730M0 138H730M0 184H730M73 0V230M146 0V230M219 0V230M292 0V230M365 0V230M438 0V230M511 0V230M584 0V230M657 0V230"
-								/>
-							</g>
-							<g class="mesh-links">
-								<path
-									d="M100 145L270 65L450 115L630 160M100 145L450 115M270 65L630 160"
-								/>
-								<path id="sin-link" d="M450 115L630 160" />
-							</g>
-							<g class="mesh-node" data-mesh="SFO">
-								<circle cx="100" cy="145" r="9" />
-								<text x="100" y="178">SFO</text>
-								<text x="100" y="196" class="version">v0</text>
-							</g>
-							<g class="mesh-node" data-mesh="ORD">
-								<circle cx="270" cy="65" r="7" />
-								<text x="270" y="98">ORD</text>
-								<text x="270" y="116" class="version">v0</text>
-							</g>
-							<g class="mesh-node" data-mesh="FRA">
-								<circle cx="450" cy="115" r="9" />
-								<text x="450" y="148">FRA</text>
-								<text x="450" y="166" class="version">v0</text>
-							</g>
-							<g class="mesh-node" data-mesh="SIN">
-								<circle cx="630" cy="160" r="7" />
-								<text x="630" y="193">SIN</text>
-								<text x="630" y="211" class="version">v0</text>
-							</g>
-							<text x="24" y="28" class="mesh-annotation">
-								One update. Four copies.
-							</text>
-						</svg>
-						<div class="mesh-controls">
-							<span id="mesh-status" role="status"
-								>4 peers connected · local simulation</span>
-							<div>
-								<button id="disconnect" aria-pressed="false">
-									Disconnect SIN</button><button id="send-update">
-									Send update <span aria-hidden="true">↗</span>
-								</button>
-							</div>
-						</div>
-					</div>
-					<div class="featured-body">
-						<div class="project-title-row">
-							<h3>
-								HyperSync
-								<span class="placeholder-inline">/ placeholder</span>
-							</h3>
-							<span class="project-year">01 / SYSTEMS</span>
-						</div>
-						<p class="project-subtitle">
-							Keeping browser tabs on the same page.
-						</p>
-						<p>
-							A peer-to-peer state synchronization experiment using WebRTC and
-							WebAssembly. Built to explore what happens when the network
-							stops cooperating.
-						</p>
-						<div class="project-detail-grid">
-							<div>
-								<h4>The interesting part</h4>
-								<p>
-									Handling a peer that drops out, keeps editing, and
-									reconnects with an older version of the state.
-								</p>
-							</div>
-							<div>
-								<h4>What I’d change</h4>
-								<p>
-									Start with a smaller protocol. Debugging the transport and
-									the consistency model at once made both harder.
-								</p>
-							</div>
-						</div>
-						<div class="project-footer">
-							<span class="tech">Rust / WebAssembly / WebRTC</span><button class="text-link" data-story="hypersync">
-								Read the build notes <span aria-hidden="true">↗</span>
+								>Python / Scapy / VMware / pfSense / Palo Alto / Wireshark</span><button type="button" class="text-link" data-story="alpharegen" aria-haspopup="dialog" aria-controls="reader">
+								Read the engineering case study ↗
 							</button>
 						</div>
 					</div>
@@ -477,140 +455,143 @@ A compiler should get out of your way.
 					</div>
 				</article>
 			</section>
-			<section id="experience">
+
+			<section id="experience" aria-labelledby="experience-heading">
 				<div class="section-heading">
 					<div>
 						<span class="eyebrow">03 / EXPERIENCE & EDUCATION</span>
-						<h2>
-							Learning in good company<span class="heading-dot">.</span>
-						</h2>
+						<h2 id="experience-heading">Experience<span class="heading-dot">.</span></h2>
 					</div>
 				</div>
-				<div class="experience-intro">
-					<p>
-						Aircraft engineering, digital innovation, and machine learning —
-						alongside my studies.
-					</p>
-					<span class="muted-label">FROM MY RÉSUMÉ</span>
-				</div>
-				<div class="experience-list">
+
+				<section id="work" class="experience-group" aria-labelledby="work-heading">
+					<h3 id="work-heading">Work</h3>
 					<article class="experience-row">
 						<div class="experience-date">
-							Aug — Dec 2026<span>Digital innovation</span>
+							<strong>Aug — Dec 2026</strong>
+							<span>Digital Innovation</span>
 						</div>
 						<div>
-							<h3>Developer, Agile Innovation Squad</h3>
-							<h4>Republic of Singapore Air Force · Singapore</h4>
-							<p>
-								Supported digital transformation by migrating Excel-based
-								tools to Microsoft Copilot Studio.
-							</p>
+							<h4>Developer, Agile Innovation Squad</h4>
+							<p class="experience-org">Republic of Singapore Air Force · Singapore</p>
 							<ul>
-								<li>
-									Debugged VBA automation and Microsoft Access dashboards.
-								</li>
-								<li>
-									Tested fixes and provided feedback to the Data Analyst and
-									Product Engineer.
-								</li>
+								<li>Set up a reusable AI prompt that updates the application automatically whenever a new document comes in, replacing manual updating.</li>
+								<li>Debugged VBA and Microsoft Access dashboards and produced an ER diagram for Data Analyst and Product Engineer.</li>
+								<li>Building a 3D-printed miniature aircraft model, from STL file to Bambu Studio settings to finishing.</li>
 							</ul>
-							<span class="tech"
-								>Microsoft Copilot Studio / VBA / Microsoft Access</span>
+							<p class="experience-facts">Microsoft Copilot Studio / VBA / Microsoft Access</p>
 						</div>
 					</article>
 					<article class="experience-row">
 						<div class="experience-date">
-							Mar 2024 — Sep 2025<span>Engineering</span>
+							<strong>Mar 2024 — Sep 2025</strong>
+							<span>Air Engineering</span>
 						</div>
 						<div>
-							<h3>Air Force Engineer</h3>
-							<h4>Republic of Singapore Air Force · Singapore</h4>
-							<p>
-								Trained as Flight Line Crew (FLC) and in General Maintenance
-								Tasks (GMT).
-							</p>
+							<h4>Air Force Engineer</h4>
+							<p class="experience-org">Republic of Singapore Air Force · Singapore</p>
 							<ul>
-								<li>Performed pre- and post-flight checks.</li>
-								<li>
-									Supported aircraft maintenance to meet operational readiness
-									requirements.
-								</li>
+								<li>Trained as Flight Line Crew (FLC) and in General Maintenance Tasks (GMT).</li>
+								<li>Performed pre- and post-flight checks and supported aircraft maintenance to meet operational readiness requirements.</li>
 							</ul>
 						</div>
 					</article>
 					<article class="experience-row">
 						<div class="experience-date">
-							Jul — Aug 2021<span>Internship</span>
+							<strong>Feb — Aug 2021</strong>
+							<span>Internship</span>
 						</div>
 						<div>
-							<h3>Machine Learning Engineer Intern</h3>
-							<h4>SAP · Singapore</h4>
-							<p>
-								Gathered stakeholder requirements, built proof-of-concept
-								solutions, and conducted feature experiments and model
-								evaluations across multiple datasets.
-							</p>
+							<h4>Machine Learning Engineer Intern</h4>
+							<p class="experience-org">SAP · Singapore</p>
 							<ul>
-								<li>Presented findings to stakeholders.</li>
-								<li>
-									Co-developed an NLP autocomplete prototype with a modular
-									pipeline for data preprocessing, entity extraction, mapping,
-									and search.
-								</li>
+								<li>Gathered stakeholder requirements, built proof-of-concept solutions, and conducted feature experiments and model evaluations across multiple datasets, presented findings to stakeholders.</li>
+								<li>Co-developed an NLP autocomplete prototype with a modular pipeline for data preprocessing, entity extraction, mapping, and search.</li>
 							</ul>
-							<span class="tech"
-								>Machine learning / NLP / Model evaluation</span>
+							<p class="experience-facts">Python / spaCy / Hugging Face Transformers / NLTK</p>
 						</div>
 					</article>
-					<article class="education-row">
-						<span class="education-seal" aria-hidden="true">S.</span>
-						<div>
-							<h3>Singapore University of Technology and Design</h3>
-							<p>
-								B.Eng. Computer Science and Design · Sep 2025 — 2029
-								(Expected)
-							</p>
-							<p>Undergraduate Merit Scholarship · cGPA: 4.22/5.00</p>
-							<p class="coursework">
-								Data Driven World: Python, data structures, algorithms, OOP,
-								linear and logistic regression.<br />Modelling and Analysis:
-								calculus and numerical methods.
-							</p>
-						</div>
-					</article>
-					<article class="education-row">
-						<span class="education-seal" aria-hidden="true">SP.</span>
-						<div>
-							<h3>Singapore Polytechnic</h3>
-							<p>
-								Diploma in Information Security Management (Cybersecurity) ·
-								Apr 2020 — Apr 2023
-							</p>
-							<p class="coursework">
-								Internship (Distinction) · Programming for Data Science
-								(Distinction) · Secure Coding · Information Security · Linux
-								Administration and Security · AWS Cloud Foundations ·
-								Programming in Security
-							</p>
-							<p class="coursework">
-								Final Year Project: AlphaReGen · Grade A
-							</p>
-						</div>
-					</article>
-					<article class="experience-row leadership-row">
+				</section>
+
+				<section id="education" class="experience-group" aria-labelledby="education-heading">
+					<h3 id="education-heading">Education</h3>
+					<article class="experience-row">
 						<div class="experience-date">
-							Leadership<span>& activities</span>
+							<strong>Sep 2025 — Jun 2029</strong>
+							<span>Expected</span>
 						</div>
 						<div>
-							<h3>Treasurer · SUTD Diving Club</h3>
-							<h4>Mar 2026 — Present</h4>
-							<h3 class="second-role">
-								Vice-Class President · Singapore Polytechnic
-							</h3>
-							<h4>Apr 2021 — Sep 2021</h4>
+							<h4>Singapore University of Technology and Design</h4>
+							<p class="experience-org">B.Eng. Computer Science and Design · GPA: 4.22/5.00</p>
+							<p class="edu-row edu-key">
+								<strong>Award:</strong>
+								Undergraduate Merit Scholarship
+							</p>
+							<p class="experience-facts experience-coursework">
+								<strong>Courses:</strong> 
+								Data Driven World (Python, data structures, algorithms) · Modelling and Analysis (calculus and numerical methods)
+							</p>
 						</div>
 					</article>
-				</div>
+					<article class="experience-row">
+						<div class="experience-date">
+							<strong>Apr 2020 — Apr 2023</strong>
+							<span>Diploma</span>
+						</div>
+						<div>
+							<h4>Singapore Polytechnic</h4>
+							<p class="experience-org">Diploma in Information Security Management (Cybersecurity)</p>
+							<p class="edu-row edu-key">
+							 	<strong>Highlights:</strong>
+								Internship <span>(Distinction)</span> ·
+								Programming for Data Science <span>(Distinction)</span> ·
+								Final Year Project: AlphaReGen <span>(Grade A)</span>
+							</p>
+							<!-- <p>Highlights: Internship (Distinction) · Programming for Data Science (Distinction) · Final Year Project: AlphaReGen (Grade A)</p> -->
+							<p class="experience-facts experience-coursework">
+								<strong>Modules:</strong> 
+								Secure Coding · Information Security · Linux Administration and Security · 
+								AWS Cloud Foundations · Programming in Security
+							</p>
+							<p class="experience-facts experience-coursework">
+								<strong>Also covered:</strong> 
+								Network fundamentals · Ethical hacking and defences · Applied cryptography · 
+								Digital forensics and investigation · Malware reverse engineering · Security policy and incident management
+							</p>
+						</div>
+					</article>
+				</section>
+
+				<section id="leadership" class="experience-group" aria-labelledby="leadership-heading">
+					<h3 id="leadership-heading">Leadership</h3>
+					<article class="experience-row">
+						<div class="experience-date">
+							<strong>Mar 2026 — Present</strong>
+						</div>
+						<div>
+							<h4>Treasurer</h4>
+							<p class="experience-org">SUTD Diving Club</p>
+						</div>
+					</article>
+					<article class="experience-row">
+						<div class="experience-date">
+							<strong>Jan — Aug 2026</strong>
+						</div>
+						<div>
+							<h4>Maker Guide</h4>
+							<p class="experience-org">SUTD Innovation Maker Breaker Space</p>
+						</div>
+					</article>
+					<article class="experience-row">
+						<div class="experience-date">
+							<strong>Apr — Sep 2021</strong>
+						</div>
+						<div>
+							<h4>Vice-Class President</h4>
+							<p class="experience-org">Singapore Polytechnic</p>
+						</div>
+					</article>
+				</section>
 			</section>
 
 			<section id="notes">
