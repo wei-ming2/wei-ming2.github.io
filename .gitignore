@@ -2,7 +2,7 @@
 /*
 !/.gitignore
 !/README.md
-!/dist/
+!/docs/
 !/.github/
 
 # Ignore operating-system files, including inside the website assets.

@@ -1,122 +1,180 @@
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
-const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-// DNS Exfiltration Raw: generated traffic, policy decision, receiving-side proof.
+// One documented DNS exercise, followed by an illustrative policy comparison.
 const alphaPreview = $("#alpha-preview");
 const alphaNext = $("#alpha-next");
 if (alphaPreview && alphaNext) {
   let stepIndex = 0;
-  let policy = "baseline";
-  const phases = ["ready", "prepare", "capture", "policy", "outcome"];
-  const stepTitles = [
-    "THE EXPERIMENT",
-    "A CREDENTIAL IS AT RISK",
-    "HIDE THE CREDENTIAL IN DNS",
-    "APPLY THE FIREWALL POLICY",
-    "CONFIRM THE CONSEQUENCE",
+  const steps = [
+    {
+      phase: "prepare", title: "A SYSTEM IS COMPROMISED", observer: "generator",
+      evidence: "AlphaGen · compromised computer", address: "192.168.1.20", next: "Encode in DNS →",
+      caption: "An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.",
+    },
+    {
+      phase: "capture", title: "HIDING THE SECRET IN DNS", observer: "generator",
+      evidence: "Wireshark · capture on AlphaGen", address: "192.168.1.20", next: "Check policy →",
+      caption: "DNS normally looks up website addresses. AlphaGen hides `secret` in the query names, one character at a time. Wireshark records the requests sent to the attacker’s server.",
+    },
+    {
+      phase: "policy", title: "THE DATA GOES UNNOTICED", observer: "firewall",
+      evidence: "Firewall · baseline decision", address: "192.168.1.1", next: "Verify receiver →",
+      caption: "Here, the firewall checks addresses and ports but doesn’t inspect the DNS query names. The hidden data passes through unnoticed.",
+    },
+    {
+      phase: "outcome", title: "THE SECRET ARRIVES", observer: "responder",
+      evidence: "AlphaRes · attacker’s server", address: "203.0.113.20", next: "Try Restricted DNS →",
+      caption: "The queries reach the attacker’s server, where AlphaRes reconstructs `secret`. The secret has successfully been transmitted outside the internal network.",
+    },
+    {
+      phase: "compare", title: "STOPPING THE SAME TRANSFER", observer: "firewall",
+      evidence: "Firewall · same queries, two policies", address: "192.168.1.1", next: "Restart ↻",
+      caption: "Now DNS requests can only go to approved servers. The attacker’s server at `203.0.113.20` isn’t on the list, so this transfer is stopped.",
+    },
   ];
 
-  function renderAlpha() {
-    const restricted = policy === "restricted";
-    const sent = stepIndex >= 2;
-    const evaluated = stepIndex >= 3;
-    const complete = stepIndex === 4;
-    const received = complete && !restricted;
-    alphaPreview.dataset.phase = phases[stepIndex];
-    alphaPreview.dataset.policy = policy;
-    $("#alpha-progress").textContent = `${stepIndex} / 4`;
-    $("#alpha-step-title").textContent = stepTitles[stepIndex];
-    $("#alpha-rule-state").textContent = restricted ? "Approved DNS only" : "Direct DNS permitted";
-    $("#alpha-capture-empty").hidden = sent;
-    $("#alpha-capture-data").hidden = !sent;
-    $("#alpha-buffer").textContent = received ? "secret" : complete ? "No data received" : "Empty";
-    $("#alpha-firewall-log").textContent = evaluated
-      ? `00:01 action=${restricted ? "drop" : "pass"}\nsrc=192.168.1.20\ndst=203.0.113.20\nproto=udp dport=53\npolicy=${restricted ? "restricted-dns" : "baseline"}\n${restricted ? "reason=unapproved-dns" : "reason=direct-dns"}`
-      : "Waiting for DNS traffic.";
-    $("#alpha-receiver-log").textContent = complete
-      ? restricted ? "No data received.\nreceived=0" : "00:07 status=complete\nmarker=www.chess.com\nrecovered=secret"
-      : evaluated && restricted ? "No requests reached the collector." : "Waiting for a transmission.";
+  const caption = $("#alpha-explanation");
+  const captionMeasure = document.createElement("p");
+  captionMeasure.className = "alpha-caption-measure";
+  captionMeasure.setAttribute("aria-hidden", "true");
+  caption.parentElement.append(captionMeasure);
+  let captionSizeKey = "";
+  let captionFrame = 0;
 
-    const messages = [
-      "DNS normally looks up website addresses. Follow an internal credential hidden in those requests, then compare the firewall policies.",
-      "The attacker has access to this computer and wants to steal an internal credential. Monitored email and uploads make DNS an alternative route.",
-      "AlphaGen places one character into each DNS query name. Wireshark records these requests leaving 192.168.1.20, regardless of the firewall policy.",
-      restricted
-        ? "The collector is not an approved DNS destination. The firewall stops the requests; the sender’s capture still records what it transmitted."
-        : "The baseline policy permits direct DNS traffic to the collector. Each request carries part of the credential across the boundary.",
-      restricted
-        ? "The collector receives no credential. This DNS transfer attempt was stopped at the firewall."
-        : "The external collector reconstructs the credential: secret. The data has crossed the network boundary.",
-    ];
-    $("#alpha-status").textContent = messages[stepIndex];
-    alphaNext.textContent = complete ? "Restart ↻" : stepIndex ? "Next →" : "Begin →";
-    const activeNode = stepIndex <= 2
-      ? "generator"
-      : stepIndex === 3 || restricted ? "firewall" : "responder";
+  function writeAlphaCaption(target, text) {
+    target.replaceChildren(...text.split(/`([^`]+)`/g).map((part, index) => {
+      if (index % 2 === 0) return document.createTextNode(part);
+      const code = document.createElement("code");
+      code.textContent = part;
+      return code;
+    }));
+  }
+
+  // Reserve the tallest paragraph at the actual font and width, independent of stage.
+  function measureAlphaCaptions() {
+    const width = caption.getBoundingClientRect().width;
+    if (!width) return;
+    const style = getComputedStyle(caption);
+    const key = `${width}:${style.font}:${style.letterSpacing}`;
+    if (captionSizeKey === key) return;
+    captionSizeKey = key;
+    captionMeasure.style.width = `${width}px`;
+    let height = Number.parseFloat(style.lineHeight) * 3;
+    steps.forEach((step) => {
+      writeAlphaCaption(captionMeasure, step.caption);
+      height = Math.max(height, captionMeasure.getBoundingClientRect().height);
+    });
+    alphaPreview.style.setProperty("--alpha-caption-height", `${Math.ceil(height)}px`);
+  }
+
+  function scheduleCaptionMeasurement() {
+    cancelAnimationFrame(captionFrame);
+    captionFrame = requestAnimationFrame(measureAlphaCaptions);
+  }
+
+  function renderAlpha() {
+    const step = steps[stepIndex];
+    const compared = step.phase === "compare";
+    const received = step.phase === "outcome";
+    alphaPreview.dataset.phase = step.phase;
+    alphaPreview.dataset.policy = compared ? "restricted" : "baseline";
+    alphaPreview.dataset.observer = step.observer;
+    $("#alpha-progress").textContent = `${stepIndex + 1} / ${steps.length}`;
+    $("#alpha-step-title").textContent = step.title;
+    $("#alpha-evidence-title").textContent = step.evidence;
+    $("#alpha-evidence-address").textContent = step.address;
+    $("#alpha-rule-state").textContent = compared ? "Restricted DNS" : "Baseline";
+    $("#alpha-buffer").textContent = compared ? "No data" : received ? "secret" : "Empty";
+    $("#alpha-firewall-log").textContent = stepIndex >= 2
+      ? `00:01 action=${compared ? "drop" : "pass"}\nsrc=192.168.1.20\ndst=203.0.113.20\nproto=udp dport=53\npolicy=${compared ? "restricted-dns" : "baseline"}\n${compared ? "reason=unapproved-dns" : "reason=direct-dns"}`
+      : "";
+    $("#alpha-receiver-log").textContent = received ? "00:07 status=complete\nmarker=www.chess.com" : "";
+    $("#alpha-recovery").textContent = received ? "Received data: secret" : "";
+    alphaPreview.querySelectorAll("[data-alpha-view]").forEach((view) => {
+      view.hidden = view.dataset.alphaView !== step.phase;
+    });
     alphaPreview.querySelectorAll("[data-alpha-node]").forEach((node) => {
-      node.classList.toggle("is-current", node.dataset.alphaNode === activeNode);
+      node.classList.toggle("is-current", node.dataset.alphaNode === step.observer);
     });
-    alphaPreview.querySelectorAll("[data-alpha-policy]").forEach((button) => {
-      button.setAttribute("aria-pressed", String(button.dataset.alphaPolicy === policy));
-    });
+    alphaNext.textContent = step.next;
+    writeAlphaCaption(caption, step.caption);
+    $("#alpha-status").textContent = `Step ${stepIndex + 1} of ${steps.length}. ${caption.textContent}`;
   }
 
   alphaNext.addEventListener("click", () => {
-    stepIndex = stepIndex === 4 ? 1 : stepIndex + 1;
+    stepIndex = (stepIndex + 1) % steps.length;
     renderAlpha();
   });
-  alphaPreview.querySelectorAll("[data-alpha-policy]").forEach((button) => {
-    button.addEventListener("click", () => {
-      policy = button.dataset.alphaPolicy;
-      renderAlpha();
-    });
-  });
+  if ("ResizeObserver" in window) {
+    const captionObserver = new ResizeObserver(scheduleCaptionMeasurement);
+    captionObserver.observe(alphaPreview);
+    captionObserver.observe(caption);
+  } else {
+    addEventListener("resize", scheduleCaptionMeasurement);
+  }
+  if (document.fonts) {
+    const refreshCaptionFont = () => {
+      captionSizeKey = "";
+      scheduleCaptionMeasurement();
+    };
+    document.fonts.ready.then(refreshCaptionFont);
+    document.fonts.addEventListener("loadingdone", refreshCaptionFont);
+  }
   renderAlpha();
   alphaNext.hidden = false;
-  alphaPreview.querySelector(".alpha-policy-toolbar").hidden = false;
+  measureAlphaCaptions();
 }
 
-$("#motion-toggle").addEventListener("click", () => {
-  const enabled = $("#motion-toggle").getAttribute("aria-checked") !== "true";
-  $("#motion-toggle").setAttribute("aria-checked", String(enabled));
-  $(".prism-preview").classList.toggle("paused", !enabled);
-  $("#motion-caption").textContent = enabled
-    ? reduced()
-      ? "Your system prefers reduced motion."
-      : "Small movements. Clear feedback."
-    : "Motion paused. Your choice stays in control.";
-});
-if (reduced())
-  $("#motion-caption").textContent = "Your system prefers reduced motion.";
-// function renderMarkdown() {
-//   const fragment = document.createDocumentFragment();
-//   let list = null;
-//   $("#markdown-source")
-//     .value.split("\n")
-//     .forEach((line) => {
-//       if (line.startsWith("- ")) {
-//         if (!list) {
-//           list = document.createElement("ul");
-//           fragment.append(list);
-//         }
-//         const li = document.createElement("li");
-//         li.textContent = line.slice(2);
-//         list.append(li);
-//         return;
-//       }
-//       list = null;
-//       if (!line.trim()) return;
-//       const heading = line.match(/^(#{1,3})\s+(.*)/);
-//       const el = document.createElement(
-//         heading ? `h${Number(heading[1].length) + 3}` : "p",
-//       );
-//       el.textContent = heading ? heading[2] : line;
-//       fragment.append(el);
-//     });
-//   $("#markdown-output").replaceChildren(fragment);
-// }
-// $("#markdown-source").addEventListener("input", renderMarkdown);
-// renderMarkdown();
+// Retained templates initialise only when their complete controls are present.
+const motionToggle = $("#motion-toggle");
+const prismPreview = $(".prism-preview");
+const motionCaption = $("#motion-caption");
+if (motionToggle && prismPreview && motionCaption) {
+  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  motionToggle.addEventListener("click", () => {
+    const enabled = motionToggle.getAttribute("aria-checked") !== "true";
+    motionToggle.setAttribute("aria-checked", String(enabled));
+    prismPreview.classList.toggle("paused", !enabled);
+    motionCaption.textContent = enabled
+      ? reduced()
+        ? "Your system prefers reduced motion."
+        : "Small movements. Clear feedback."
+      : "Motion paused. Your choice stays in control.";
+  });
+  if (reduced()) motionCaption.textContent = "Your system prefers reduced motion.";
+}
+
+const markdownSource = $("#markdown-source");
+const markdownOutput = $("#markdown-output");
+if (markdownSource && markdownOutput) {
+  function renderMarkdown() {
+    const fragment = document.createDocumentFragment();
+    let list = null;
+    markdownSource.value.split("\n").forEach((rawLine) => {
+      const line = rawLine.trimStart();
+      if (line.startsWith("- ")) {
+        if (!list) {
+          list = document.createElement("ul");
+          fragment.append(list);
+        }
+        const item = document.createElement("li");
+        item.textContent = line.slice(2);
+        list.append(item);
+        return;
+      }
+      list = null;
+      if (!line.trim()) return;
+      const heading = line.match(/^(#{1,3})\s+(.*)/);
+      const element = document.createElement(heading ? `h${Number(heading[1].length) + 3}` : "p");
+      element.textContent = heading ? heading[2] : line;
+      fragment.append(element);
+    });
+    markdownOutput.replaceChildren(fragment);
+  }
+  markdownSource.addEventListener("input", renderMarkdown);
+  renderMarkdown();
+}
+
 const portfolioPreview = $(".portfolio-preview");
 const portfolioBreakpoints = $$("[data-preview-breakpoint]");
 const portfolioLayouts = {
@@ -135,103 +193,69 @@ portfolioBreakpoints.forEach((button) => {
       `${portfolioLayouts[width]} layout · ${width}px reference`;
   });
 });
-$$("[data-filter]").forEach((button) =>
-  button.addEventListener("click", () => {
-    const filter = button.dataset.filter;
-    $$("[data-filter]").forEach((b) =>
-      b.setAttribute("aria-pressed", String(b === button)),
-    );
-    $$(".project").forEach(
-      (project) =>
-        (project.hidden =
-          filter !== "all" && project.dataset.category !== filter),
-    );
-    const count = $$(".project").filter((p) => !p.hidden).length;
-    $(".project-pair").hidden = !$(".project-pair").querySelector(
-      ".project:not([hidden])",
-    );
-    $("#filter-status").textContent =
-      `Showing ${count} ${filter === "all" ? "" : filter + " "}project${count === 1 ? "" : "s"}`;
-  }),
-);
 const stories = {
   alpharegen: {
     label: "ENGINEERING CASE STUDY / ALPHAREGEN V1",
     title: "Traffic generation, firewall policy, and packet evidence in one testbed",
     body: /* HTML */ `
-      <p>
-        AlphaReGen combines a modular Python traffic generator/responder with a
-        segmented VMware testbed. Students generate normal and malicious traffic,
-        configure firewall policy, and examine the resulting logs and packet
-        captures. The v1 deliverable was integrated into Singapore Polytechnic’s
-        Cybersecurity Infrastructure Configuration module.
-      </p>
-      <h3>The problem and my contribution</h3>
+      <h3>Problem and my contribution</h3>
       <p>
         Lecturers needed practical exercises without spending each lesson setting
-        up and troubleshooting individual services. I led the five-person team
-        and built the shared software architecture, developed Port and ARP
-        exercises, and helped integrate other protocol implementations. I also
-        standardised contributed modules and troubleshot their behaviour on the
-        required Oracle Linux virtual machines. Firewall configuration and
-        testing were team deliverables.
+        up individual services. AlphaReGen paired a Python command-line traffic
+        generator, AlphaGen, with a responder, AlphaRes, in a reusable VMware lab.
+        I led the five-person team, built the shared software architecture, and
+        implemented port-scanning and ARP exercises. I integrated and standardised
+        teammates’ protocol modules and troubleshot their behaviour on Oracle
+        Linux. Firewall configuration and testing were team deliverables.
       </p>
-      <h3>A network with distinct trust boundaries</h3>
+      <h3>Generator–responder design</h3>
       <p>
-        The VMware environment separated Inside, Outside, and Extranet/DMZ networks
-        around a firewall. A Linux cloud simulator provided routing and NAT toward
-        the external network and Internet, while a separate management client
-        provided access to the firewall interface. We exercised Inside-to-DMZ,
-        Outside-to-DMZ, and Inside-to-Outside paths, placing the generator and
-        responder where each exercise required them.
+        AlphaGen selects protocol handlers and coordinates AlphaRes over a TCP
+        command channel, separate from the exercise traffic. AlphaRes starts the
+        matching service as a subprocess. Shared helpers provide menus, input
+        validation, learner explanations and Wireshark filters, giving contributed
+        modules a consistent interface. Interactive and verbose modes expose
+        inputs and response details so learners can connect each command to the
+        resulting traffic. Scapy crafts packets for header-level
+        exercises; application services use libraries such as Paramiko,
+        pyftpdlib, and Flask with SQLite. This distinction lets students examine
+        both packet behaviour and service interactions without manually setting
+        up each target.
       </p>
-      <h3>Firewall configuration and validation</h3>
+      <h3>Network and firewall testing</h3>
       <p>
-        Our team configured Palo Alto and pfSense firewalls in the testbed,
-        established basic connectivity, and applied rules and security policies
-        to the generated traffic. Exercises covered scanning, brute-force
-        attempts, SQL injection, flooding, and exfiltration. We compared the
-        observed behaviour of the two firewall configurations and documented
-        the results, including cases where the tested configuration did not
-        detect the traffic.
+        The testbed separated Inside, Outside and DMZ networks. A Linux cloud
+        simulator handled routing and NAT; a dedicated management client provided
+        firewall administration access. Our team configured Palo Alto and pfSense
+        firewalls and tested traffic across these boundaries. We generated known
+        actions, compared firewall records and Wireshark captures with responder
+        output, then adjusted policy and repeated the test. Results documented
+        which transfers were stopped, which reached the responder, and what the
+        captures showed under the tested configurations. These were lab findings,
+        not general rankings of either product.
       </p>
+      <h3>What the DNS exercise demonstrates</h3>
       <p>
-        The investigation workflow was to generate a known action, inspect the
-        firewall decision and Wireshark capture, change the policy, and compare
-        the evidence. We also explored URL filtering and packet-capture features.
-        These findings describe our lab configurations and test conditions;
-        detection depended on the enabled policies and inspection features.
+        In the documented DNS Exfiltration Raw exercise, AlphaGen sends crafted
+        queries directly to AlphaRes. Each <code>www.youtube.com.sgX</code> name
+        carries a character; <code>www.chess.com</code> signals completion.
+        AlphaRes reconstructs the data. These names are signalling strings, not
+        requests to the public websites. The concept demo shows how network rules
+        can forward DNS without inspecting query names. Its comparison repeats
+        the traffic under an illustrative destination restriction: only approved
+        DNS servers are reachable. This stops the transfer without claiming that
+        the firewall recognised the hidden secret.
       </p>
-      <h3>A common framework for protocol exercises</h3>
-      <p>
-        AlphaGen selects protocol modules and coordinates AlphaRes through a TCP
-        command channel. The responder launches the selected service as a
-        subprocess. Scapy handles packet crafting for protocol headers and
-        attack scenarios, while libraries such as Paramiko, pyftpdlib, and
-        Flask with SQLite provide application conversations and target state.
-      </p>
-      <p>
-        Shared helpers handle input validation, menus, learner explanations,
-        and scenario-specific Wireshark filters. Interactive and verbose modes
-        expose inputs and response details. This structure let us integrate
-        teammates’ protocol implementations into a consistent learning workflow.
-        Cross-platform testing mattered: Scapy traffic could interact differently
-        with the Linux network stack, requiring investigation beyond the Python
-        code itself.
-      </p>
-      <h3>Delivery and engineering lessons</h3>
+      <h3>Handover and lessons</h3>
       <p>
         The handover included user and developer documentation, a firewall
-        administration guide, exported firewall configurations, and a shell
-        script for repeated setup. Together, these supported rebuilding the lab
-        and extending its exercises for teaching. The final-year project received
-        Grade A.
-      </p>
-      <p>
-        The central lesson was to connect the software action, the policy
-        decision, and the captured packet. A future revision would strengthen
-        responder readiness checks, subprocess cleanup, and automated
-        packet-capture regression checks.
+        administration guide, configuration exports and a setup script for
+        rebuilding the environment. The project received Grade A, and AlphaReGen
+        v1 was integrated into Singapore Polytechnic’s
+        <a href="https://www.sp.edu.sg/courses/schools/soc/cybersecurity-digital-forensics#section-2" target="_blank" rel="noopener noreferrer">Cybersecurity Infrastructure Configuration module</a>.
+        A future revision would add responder readiness checks, strengthen
+        subprocess cleanup, and introduce packet-capture regression tests to
+        catch integration failures before classroom use.
       </p>
       <p class="alpha-case-stack">
         Python / Scapy / Socket programming / VMware / Oracle Linux /
@@ -346,11 +370,14 @@ source files
 const reader = $("#reader");
 const readerTitle = $("#reader-title");
 const readerBody = $("#reader-body");
+let readerKind = null;
+let readerReturnFocus = null;
 
-function showReader(label, title) {
+function showReader(label, title, kind = "case") {
+  readerKind = kind;
   $("#reader-label").textContent = label;
   readerTitle.textContent = title;
-  reader.showModal();
+  if (!reader.open) reader.showModal();
   reader.scrollTop = 0;
 }
 
@@ -362,18 +389,17 @@ function addPlaceholderNotice() {
   readerBody.prepend(notice);
 }
 
-$$("[data-story]").forEach((button) =>
+$$("[data-story]").forEach((button) => {
   button.addEventListener("click", () => {
     const story = stories[button.dataset.story];
-    const placeholder = !["alpharegen", "colophon"].includes(
-      button.dataset.story,
-    );
+    if (!story) return;
+    readerReturnFocus = button;
     readerBody.innerHTML = story.body;
+    const placeholder = ["prism", "markdown"].includes(button.dataset.story);
     if (placeholder) addPlaceholderNotice();
-    const label = placeholder ? `PLACEHOLDER / ${story.label}` : story.label;
-    showReader(label, story.title);
-  }),
-);
+    showReader(placeholder ? `PLACEHOLDER / ${story.label}` : story.label, story.title);
+  });
+});
 
 function appendThoughtText(element, content) {
   let offset = 0;
@@ -452,7 +478,21 @@ async function readThought(url) {
   };
 }
 
-function populateThoughtButton(button, { category, title, excerpt, minutes, body }) {
+const thoughtEntries = new Map();
+let readerRouteRequest = 0;
+let readerClosing = false;
+
+function thoughtSlug() {
+  if (!location.hash.startsWith("#thought/")) return null;
+  try {
+    return decodeURIComponent(location.hash.slice("#thought/".length));
+  } catch {
+    return "";
+  }
+}
+
+function populateThoughtLink(link, { category, title, excerpt, minutes }) {
+  link.replaceChildren();
   for (const [className, text] of [
     ["note-category", category],
     ["note-title", title],
@@ -462,54 +502,113 @@ function populateThoughtButton(button, { category, title, excerpt, minutes, body
     const span = document.createElement("span");
     span.className = className;
     span.textContent = text;
-    button.append(span);
+    link.append(span);
   }
   const arrow = document.createElement("span");
   arrow.setAttribute("aria-hidden", "true");
   arrow.textContent = "↗";
-  button.querySelector(".note-title").append(arrow);
-
-  button.addEventListener("click", () => {
-    readerBody.replaceChildren(renderThoughtBody(body));
-    showReader(category, title);
-  });
-  button.hidden = false;
+  link.querySelector(".note-title").append(arrow);
+  link.hidden = false;
 }
 
-async function loadThoughtButton(button) {
-  const filename = button.dataset.thought;
-  const url = `thoughts/${encodeURIComponent(filename)}`;
-  let thought;
-  try {
-    thought = await readThought(url);
-  } catch {
-    const link = document.createElement("a");
-    link.className = "text-link";
-    link.href = url;
-    link.textContent = `Open ${filename} ↗`;
-    button.replaceWith(link);
+function closeDialog() {
+  reader.close();
+  readerKind = null;
+  readerReturnFocus?.focus({ preventScroll: true });
+  readerReturnFocus = null;
+}
+
+async function syncThoughtRoute() {
+  const slug = thoughtSlug();
+  const request = ++readerRouteRequest;
+  readerClosing = false;
+  if (slug === null) {
+    if (readerKind === "thought") closeDialog();
     return;
   }
-  populateThoughtButton(button, thought);
+
+  const entry = thoughtEntries.get(slug);
+  readerReturnFocus = entry?.link || $("#notes-heading");
+  const article = entry ? await entry.ready : null;
+  if (request !== readerRouteRequest || thoughtSlug() !== slug) return;
+
+  if (article) {
+    readerBody.replaceChildren(renderThoughtBody(article.body));
+    showReader(article.category, article.title, "thought");
+  } else {
+    const message = document.createElement("p");
+    message.textContent = entry
+      ? "This article could not be loaded. You can try its Markdown source or return to Thoughts."
+      : "This article isn’t available. Return to Thoughts to see the current writing.";
+    readerBody.replaceChildren(message);
+    if (entry) {
+      const source = document.createElement("a");
+      source.href = entry.url;
+      source.textContent = "Open the Markdown source ↗";
+      readerBody.append(source);
+    }
+    showReader("THOUGHTS", entry ? "Article unavailable" : "Thought not found", "thought");
+  }
+  scheduleSidebarUpdate();
 }
 
-$$(".writing-list > button[data-thought]").forEach(loadThoughtButton);
+$$(".writing-list > [data-thought]").forEach((link) => {
+  const filename = link.dataset.thought;
+  const slug = filename.replace(/\.md$/, "");
+  const url = `thoughts/${encodeURIComponent(filename)}`;
+  const entry = { link, url };
+  thoughtEntries.set(slug, entry);
+  entry.ready = readThought(url).then((article) => {
+    populateThoughtLink(link, article);
+    return article;
+  }).catch(() => {
+    link.href = url;
+    link.textContent = `Open ${filename} ↗`;
+    link.hidden = false;
+    return null;
+  });
+  link.addEventListener("click", (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !link.hash.startsWith("#thought/")) return;
+    event.preventDefault();
+    if (location.hash !== link.hash) {
+      history.pushState({ portfolioThought: true }, "", link.hash);
+    }
+    void syncThoughtRoute();
+  });
+});
 
 function closeReader() {
-  reader.close();
+  if (readerClosing) return;
+  if (readerKind === "thought" && thoughtSlug() !== null) {
+    readerClosing = true;
+    if (history.state?.portfolioThought) {
+      history.back();
+    } else {
+      history.replaceState(null, "", "#notes");
+      ++readerRouteRequest;
+      closeDialog();
+      $("#notes").scrollIntoView();
+      readerClosing = false;
+      scheduleSidebarUpdate();
+    }
+  } else {
+    closeDialog();
+  }
 }
 $("#close-reader").addEventListener("click", closeReader);
 $("#reader-done").addEventListener("click", closeReader);
-reader.addEventListener("click", (e) => {
-  const rect = reader.getBoundingClientRect();
-  if (
-    e.clientX < rect.left ||
-    e.clientX > rect.right ||
-    e.clientY < rect.top ||
-    e.clientY > rect.bottom
-  )
-    reader.close();
+reader.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeReader();
 });
+reader.addEventListener("click", (event) => {
+  const rect = reader.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
+    closeReader();
+  }
+});
+addEventListener("hashchange", syncThoughtRoute);
+addEventListener("popstate", syncThoughtRoute);
 $("#copy-email").addEventListener("click", async () => {
   await navigator.clipboard.writeText("fooweiming1@gmail.com");
   $("#copy-email").textContent = "Copied ✓";
@@ -536,7 +635,7 @@ function updateSidebar() {
   const section = atBottom
     ? pageSections[pageSections.length - 1]
     : sectionAtScrollLine(pageSections, line);
-  const activeHash = `#${section.id}`;
+  const activeHash = thoughtSlug() !== null ? "#notes" : `#${section.id}`;
   for (const link of mainNavLinks) {
     const active = link.hash === activeHash;
     link.classList.toggle("active", active);
@@ -559,3 +658,4 @@ if ("ResizeObserver" in window) {
   new ResizeObserver(scheduleSidebarUpdate).observe($("main"));
 }
 scheduleSidebarUpdate();
+void syncThoughtRoute();

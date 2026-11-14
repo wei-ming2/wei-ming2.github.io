@@ -70,17 +70,20 @@
 						<h1>Learning how to <span>automate</span> myself out of a job.</h1>
 						<p class="hero-copy">
 							I’m a <strong>Computer Science and Design undergraduate at SUTD</strong>
-							and an Undergraduate Merit Scholar, with a <br />Diploma in Information Security Management.
+							and an Undergraduate Merit Scholar, with a Diploma in Information Security Management.
 						</p>
 						<p class="bio">
-							Actively building on my machine learning (ML) fundamentals and learning about the workings of modern LLMs.
-							Past work includes digital innovation with the RSAF Agile Innovation Squad, ML internship at SAP, and a cybersecurity background.
+							My work includes an ML internship at SAP and digital innovation with the RSAF Agile Innovation Squad. 
+							I’m now developing my machine learning fundamentals and understanding of modern LLMs, building on a background in cybersecurity.
 						</p>
 
 						<div class="hero-actions">
-							<a class="button primary" href="#projects"
-								>Explore my projects <span aria-hidden="true">↘</span></a><a class="text-link" href="#resume"
-								>Read my résumé <span aria-hidden="true">↗</span></a>
+							<a class="button primary" href="#projects">
+								Explore my projects <span aria-hidden="true">↘</span>
+							</a>
+							<a class="text-link" href="#resume">
+								Read my résumé <span aria-hidden="true">↗</span>
+							</a>
 						</div>
 					</div>
 
@@ -125,6 +128,7 @@
 					<a href="#notes">A few notes along the way ↗</a>
 				</div>
 			</section>
+
 			<section id="projects">
 				<div class="section-heading">
 					<div>
@@ -134,37 +138,17 @@
 						</h2>
 					</div>
 					<span class="section-meta">
-						2 engineering case studies · more to come
+						2 selected projects
 					</span>
 				</div>
-				<div class="project-toolbar">
-					<p>A closer look at what I’ve built, and what I learned building it. More to come.</p>
-					<div class="filters" role="group" aria-label="Filter projects">
-						<button data-filter="all" aria-pressed="true">
-							All <span>02</span></button><button data-filter="systems" aria-pressed="false">
-							Systems</button><button data-filter="tools" aria-pressed="false">
-							Tools & UI
-						</button>
-					</div>
-				</div>
-				<p id="filter-status" class="sr-only" aria-live="polite">
-					Showing all 2 projects
-				</p>
 
 				<article id="alpharegen" class="project actual-project featured" data-category="systems" aria-labelledby="alpharegen-title">
-					<div class="alpha-preview" id="alpha-preview" data-phase="ready" data-policy="baseline">
+					<div class="alpha-preview" id="alpha-preview" data-phase="prepare" data-policy="baseline" data-observer="generator">
 						<div class="preview-top alpha-preview-header">
-							<span class="alpha-demo-label">alpharegen / DNS Exfiltration Raw</span>
-							<div class="alpha-policy-toolbar" hidden>
-								<span id="alpha-policy-label">Policy</span>
-								<div class="alpha-policy-options" role="group" aria-labelledby="alpha-policy-label">
-									<button type="button" data-alpha-policy="baseline" aria-pressed="true" aria-controls="alpha-firewall-log alpha-buffer alpha-receiver-log"><span>Baseline</span></button>
-									<button type="button" data-alpha-policy="restricted" aria-pressed="false" aria-controls="alpha-firewall-log alpha-buffer alpha-receiver-log"><span>Restricted DNS</span></button>
-								</div>
-							</div>
-							<span id="alpha-progress">0 / 4</span>
+							<span class="alpha-demo-label">Concept demo · DNS exfiltration</span>
+							<span id="alpha-progress">1 / 5</span>
 						</div>
-						<div class="alpha-network-scene" role="group" aria-label="Internal computer, firewall, and external collection server">
+						<div class="alpha-network-scene" role="group" aria-label="Internal computer, firewall, and attacker’s server">
 							<span class="alpha-zone alpha-zone-internal">INTERNAL NETWORK</span><span class="alpha-zone alpha-zone-external">EXTERNAL NETWORK</span>
 							<span class="alpha-boundary" aria-hidden="true"></span>
 							<svg class="alpha-route-map" viewBox="0 0 900 44" preserveAspectRatio="none" aria-hidden="true">
@@ -175,51 +159,63 @@
 							<div class="alpha-host" data-alpha-node="generator">
 								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="10" y="3" width="40" height="28" rx="2"/><path d="M10 31L3 39H57L50 31M24 35H36"/></svg>
 								<strong>AlphaGen</strong><code>192.168.1.20</code><span>Compromised PC</span>
-								<div class="alpha-credential"><span>Internal credential</span><code aria-label="secret"><span data-alpha-byte="0">s</span><span data-alpha-byte="1">e</span><span data-alpha-byte="2">c</span><span data-alpha-byte="3">r</span><span data-alpha-byte="4">e</span><span data-alpha-byte="5">t</span></code></div>
+								<div class="alpha-credential"><span>Sensitive data</span><code aria-label="secret"><span data-alpha-byte="0">s</span><span data-alpha-byte="1">e</span><span data-alpha-byte="2">c</span><span data-alpha-byte="3">r</span><span data-alpha-byte="4">e</span><span data-alpha-byte="5">t</span></code></div>
 							</div>
 							<div class="alpha-host" data-alpha-node="firewall">
 								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="5" y="1" width="50" height="42" rx="2"/><path d="M5 15H55M5 29H55M21 1V15M40 15V29M21 29V43"/></svg>
-								<strong>Firewall</strong><code>192.168.1.1</code><span>DNS gateway</span>
-								<div class="alpha-rule-summary"><span>DNS policy</span><code id="alpha-rule-state">Direct DNS permitted</code></div>
+								<strong>Firewall</strong><code>192.168.1.1</code><span>DNS egress policy</span>
+								<div class="alpha-rule-summary"><span>Current policy</span><code id="alpha-rule-state">Baseline</code></div>
 							</div>
 							<div class="alpha-host" data-alpha-node="responder">
 								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="14" y="1" width="32" height="42" rx="2"/><path d="M14 15H46M14 29H46M22 36H25"/></svg>
-								<strong>AlphaRes</strong><code>203.0.113.20</code><span>External collector</span>
+								<strong>AlphaRes</strong><code>203.0.113.20</code><span>Attacker’s server</span>
 								<div class="alpha-buffer-summary"><span>Receiving buffer</span><code id="alpha-buffer">Empty</code></div>
 							</div>
 							<span class="alpha-stop" aria-hidden="true">×</span>
 						</div>
-						<div class="alpha-evidence-grid" id="alpha-evidence">
-							<section class="alpha-evidence alpha-capture" aria-labelledby="alpha-capture-title">
-								<div class="alpha-evidence-heading"><h4 id="alpha-capture-title">Wireshark · AlphaGen</h4><code>192.168.1.20</code></div>
-								<table aria-label="Outgoing DNS queries captured at 192.168.1.20">
-									<thead><tr><th scope="col">Time</th><th scope="col">DNS query name</th></tr></thead>
-									<tbody id="alpha-capture-data" hidden>
-										<tr><td>00:01</td><td><code>www.youtube.com.sg<mark data-alpha-byte="0">s</mark></code></td></tr>
-										<tr><td>00:02</td><td><code>www.youtube.com.sg<mark data-alpha-byte="1">e</mark></code></td></tr>
-										<tr><td>00:03</td><td><code>www.youtube.com.sg<mark data-alpha-byte="2">c</mark></code></td></tr>
-										<tr><td>00:04</td><td><code>www.youtube.com.sg<mark data-alpha-byte="3">r</mark></code></td></tr>
-										<tr><td>00:05</td><td><code>www.youtube.com.sg<mark data-alpha-byte="4">e</mark></code></td></tr>
-										<tr><td>00:06</td><td><code>www.youtube.com.sg<mark data-alpha-byte="5">t</mark></code></td></tr>
-										<tr class="alpha-end-marker"><td>00:07</td><td><code>www.chess.com</code><span> end</span></td></tr>
-									</tbody>
-								</table>
-								<p id="alpha-capture-empty">No queries sent yet.</p>
-							</section>
-							<section class="alpha-evidence alpha-firewall-evidence" aria-labelledby="alpha-firewall-title">
-								<div class="alpha-evidence-heading"><h4 id="alpha-firewall-title">Firewall event</h4><code>192.168.1.1</code></div>
-								<div class="alpha-evidence-label">Traffic record</div>
-								<pre id="alpha-firewall-log">Waiting for DNS traffic.</pre>
-							</section>
-							<section class="alpha-evidence alpha-receiver-evidence" aria-labelledby="alpha-receiver-title">
-								<div class="alpha-evidence-heading"><h4 id="alpha-receiver-title">AlphaRes terminal</h4><code>203.0.113.20</code></div>
-								<div class="alpha-evidence-label">Receive record</div>
-								<pre id="alpha-receiver-log">Waiting for a transmission.</pre>
-							</section>
+						<div class="alpha-evidence" id="alpha-evidence" role="group" aria-labelledby="alpha-evidence-title alpha-evidence-address">
+							<div class="alpha-evidence-heading"><h4 id="alpha-evidence-title">AlphaGen · compromised computer</h4><code id="alpha-evidence-address">192.168.1.20</code></div>
+							<div class="alpha-evidence-body">
+								<div class="alpha-setup" data-alpha-view="prepare">
+									<div><span>Sensitive data</span><code>secret</code></div>
+									<div><span>Monitored channels</span><strong>Email · file uploads</strong></div>
+								</div>
+								<div data-alpha-view="capture" hidden>
+									<div class="alpha-suffixes"><span>Query suffixes</span><code aria-label="secret"><span>s</span><span>e</span><span>c</span><span>r</span><span>e</span><span>t</span></code><span class="alpha-transport">DNS · UDP/53</span></div>
+									<table aria-label="Outgoing DNS queries captured on AlphaGen, 192.168.1.20">
+										<thead><tr><th scope="col">Time</th><th scope="col">DNS query name</th></tr></thead>
+										<tbody id="alpha-capture-data">
+											<tr><td>00:01</td><td><code>www.youtube.com.sg<mark data-alpha-byte="0">s</mark></code></td></tr>
+											<tr><td>00:02</td><td><code>www.youtube.com.sg<mark data-alpha-byte="1">e</mark></code></td></tr>
+											<tr><td>00:03</td><td><code>www.youtube.com.sg<mark data-alpha-byte="2">c</mark></code></td></tr>
+											<tr><td>00:04</td><td><code>www.youtube.com.sg<mark data-alpha-byte="3">r</mark></code></td></tr>
+											<tr><td>00:05</td><td><code>www.youtube.com.sg<mark data-alpha-byte="4">e</mark></code></td></tr>
+											<tr><td>00:06</td><td><code>www.youtube.com.sg<mark data-alpha-byte="5">t</mark></code></td></tr>
+											<tr class="alpha-end-marker"><td>00:07</td><td><code>www.chess.com</code><span> completion marker</span></td></tr>
+										</tbody>
+									</table>
+								</div>
+								<pre id="alpha-firewall-log" data-alpha-view="policy" hidden></pre>
+								<div data-alpha-view="outcome" hidden>
+									<pre id="alpha-receiver-log"></pre>
+									<samp class="alpha-recovery" id="alpha-recovery"></samp>
+								</div>
+								<div data-alpha-view="compare" hidden>
+									<table class="alpha-comparison" aria-label="The same DNS queries under two firewall policies">
+										<thead><tr><th scope="col">Policy</th><th scope="col">Firewall</th><th scope="col">AlphaRes</th></tr></thead>
+										<tbody>
+											<tr><th scope="row">Baseline</th><td><code>00:01 action=pass</code></td><td><samp>secret</samp><span>recovered</span></td></tr>
+											<tr class="alpha-restricted-result"><th scope="row">Restricted DNS</th><td><code>00:01 action=drop</code></td><td><samp>No data</samp><span>received</span></td></tr>
+										</tbody>
+									</table>
+									<p class="alpha-comparison-meta">Illustrative policy · UDP/53</p>
+								</div>
+							</div>
 						</div>
 						<div class="alpha-preview-footer">
-							<div class="alpha-readout"><span id="alpha-step-title">THE EXPERIMENT</span><p id="alpha-status" role="status" aria-live="polite" aria-atomic="true">DNS normally looks up website addresses. Follow an internal credential hidden in those requests, then compare the firewall policies.</p></div>
-							<button type="button" id="alpha-next" aria-controls="alpha-status alpha-evidence" hidden>Begin →</button>
+							<div class="alpha-readout"><span id="alpha-step-title">A SYSTEM IS COMPROMISED</span><p id="alpha-explanation">An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.</p></div>
+							<p class="sr-only" id="alpha-status" role="status" aria-live="polite" aria-atomic="true">Step 1 of 5. An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.</p>
+							<button type="button" id="alpha-next" aria-controls="alpha-status alpha-evidence" hidden>Encode in DNS →</button>
 						</div>
 					</div>
 					<div class="featured-body">
@@ -229,32 +225,37 @@
 						<h3 id="alpharegen-title">AlphaReGen</h3>
 						<p class="project-subtitle">Generate traffic. Configure the firewall. Inspect the evidence.</p>
 						<p>
-							AlphaReGen combines a modular Python traffic generator/responder with a
-							segmented VMware testbed. Students generate normal and malicious traffic,
-							configure firewall policy, and examine the result through firewall logs
-							and Wireshark. I led the team and built the shared software architecture
-							that brought the protocol modules together.
+							AlphaReGen pairs a Python command-line traffic generator, AlphaGen, with
+							a responder, AlphaRes, in a segmented VMware lab. Students generate normal
+							and malicious traffic, configure firewall policies, and compare firewall
+							logs and Wireshark captures with what reaches the responder.
+						</p>
+						<p>
+							I led the five-person team and built the shared framework for protocol
+							selection, input validation and generator–responder coordination.
 						</p>
 						<p class="alpha-outcome">
 							<strong>Used beyond the final-year project.</strong> AlphaReGen v1 was
-							integrated into Singapore Polytechnic’s Cybersecurity Infrastructure
-							Configuration module.
+							integrated into Singapore Polytechnic’s
+							<a href="https://www.sp.edu.sg/courses/schools/soc/cybersecurity-digital-forensics#section-2" target="_blank" rel="noopener noreferrer">Cybersecurity Infrastructure Configuration module</a>.
+							<small class="alpha-curriculum-guide">On SP’s page: Year 2 → Cyber Defence Security.</small>
 						</p>
 						<div class="project-detail-grid">
 							<div>
-								<h4>A network built around firewall policy</h4>
+								<h4>Network testbed and firewall policy</h4>
 								<p>
-									Inside, Outside, and DMZ zones support traffic across trust boundaries.
-									Our team configured and tested Palo Alto and pfSense firewalls,
-									with routing/NAT, reusable configurations, and an administration guide.
+									Inside, Outside and DMZ zones separate the network. A cloud simulator
+									handles routing and NAT. Our team configured and tested Palo Alto and
+									pfSense firewalls, and delivered reusable configurations and an
+									administration guide.
 								</p>
 							</div>
 							<div>
-								<h4>Software that makes the network observable</h4>
+								<h4>Shared protocol framework</h4>
 								<p>
-									Scapy packet crafting and protocol services share validation,
-									learner support, and Wireshark filters. Learners can connect a
-									generated action to a policy decision and the captured packets.
+									Protocol modules share menus, input validation, learner explanations
+									and Wireshark filters. AlphaGen selects the exercise; AlphaRes runs
+									the matching service.
 								</p>
 							</div>
 						</div>
@@ -263,6 +264,7 @@
 								>Python / Scapy / VMware / pfSense / Palo Alto / Wireshark</span><button type="button" class="text-link" data-story="alpharegen" aria-haspopup="dialog" aria-controls="reader">
 								Read the engineering case study ↗
 							</button>
+							<!-- TODO(ALPHAREGEN_REPOSITORY_URL): Add the real source repository link once the code is organised. -->
 						</div>
 					</div>
 				</article>
@@ -296,7 +298,7 @@
 												<li><span>01</span>About</li>
 												<li class="portfolio-mini-active"><span>02</span>Projects</li>
 												<li><span>03</span>Experience</li>
-												<li><span>04</span>Writing</li>
+												<li><span>04</span>Thoughts</li>
 												<li><span>05</span>Résumé</li>
 												<li><span>06</span>Contact</li>
 											</ol>
@@ -312,27 +314,27 @@
 											<div class="portfolio-mini-projects">
 												<div class="portfolio-mini-project">
 													<div class="portfolio-mini-project-title">
-														<strong>TraceFlow</strong><span>01</span>
+														<strong>AlphaReGen</strong><span>01</span>
 													</div>
-													<b>Flamegraph Profiler</b>
-													<div class="portfolio-mini-graphic portfolio-mini-flame">
-														<i></i><i></i><i></i><i></i><i></i>
+													<b>Traffic generation &amp; analysis</b>
+													<div class="portfolio-mini-graphic portfolio-mini-network">
+														<i></i><i></i><i></i>
 													</div>
-													<span class="portfolio-mini-stack">Wasm / Rust</span>
+													<span class="portfolio-mini-stack">Python / Scapy / VMware</span>
 												</div>
 												<div class="portfolio-mini-project">
 													<div class="portfolio-mini-project-title">
-														<strong>Prism UI</strong><span>02</span>
+														<strong>This Site</strong><span>02</span>
 													</div>
-													<b>Adaptive Design Token</b>
-													<div class="portfolio-mini-graphic portfolio-mini-token">
+													<b>Personal portfolio</b>
+													<div class="portfolio-mini-graphic portfolio-mini-page">
 														<i></i><span><i></i><i></i></span>
 													</div>
-													<span class="portfolio-mini-stack">React / CSS Vars</span>
+													<span class="portfolio-mini-stack">HTML / CSS / JavaScript</span>
 												</div>
 											</div>
 											<div class="portfolio-mini-footer">
-												<span>Showing 2 of 4 interactive cards</span><span>Grid view</span>
+												<span>2 selected projects</span><span>Grid view</span>
 											</div>
 										</div>
 									</div>
@@ -349,9 +351,8 @@
 							</div>
 							<p>A portfolio that's also a project.</p>
 							<p class="project-summary">
-								Designed in Stitch, built with Codex, and tuned by hand. A portfolio for
-								my projects, experience, and résumé, with interactive demos and
-								keyboard-accessible reading panels.
+								Plain HTML, CSS, and JavaScript, with responsive project demos,
+								keyboard-accessible reading panels, and an automated résumé workflow.
 							</p>
 							<span class="tech">HTML / CSS / JavaScript</span>
 							<a class="text-link" href="https://github.com/wei-ming2/wei-ming2.github.io/" target="_blank" rel="noopener noreferrer">
@@ -360,7 +361,7 @@
 						</div>
 					</article>
 
-					<article class="project" data-category="tools">
+					<!-- <article class="project" data-category="tools">
 						<div class="prism-preview">
 							<div class="preview-top">
 								<span>prism / interaction study</span><span>TRY THE CONTROL</span>
@@ -404,9 +405,9 @@
 								Design decisions ↗
 							</button>
 						</div>
-					</article>
+					</article> -->
 				</div>
-				
+
 				<!-- <article class="project markdown-project" data-category="tools">
 					<div class="markdown-preview">
 						<div class="preview-top">
@@ -454,7 +455,7 @@
 				</article> -->
 			</section>
 
-			<!-- <section id="experience" aria-labelledby="experience-heading">
+			<section id="experience" aria-labelledby="experience-heading">
 				<div class="section-heading">
 					<div>
 						<span class="eyebrow">03 / EXPERIENCE & EDUCATION</span>
@@ -503,13 +504,13 @@
 							<h4>Machine Learning Engineer Intern</h4>
 							<p class="experience-org">SAP · Singapore</p>
 							<ul>
-								<li>Gathered stakeholder requirements, built proof-of-concept solutions, and conducted feature experiments and model evaluations across multiple datasets, presented findings to stakeholders.</li>
-								<li>Co-developed an NLP autocomplete prototype with a modular pipeline for data preprocessing, entity extraction, mapping, and search.</li>
+								<li>Turned stakeholder requirements into proof-of-concept solutions, then compared feature experiments and model evaluations across multiple datasets.</li>
+								<li>Co-developed an NLP autocomplete prototype with separate stages for preprocessing, entity extraction, mapping, and search, and presented findings to stakeholders.</li>
 							</ul>
 							<p class="experience-facts">Python / spaCy / Hugging Face Transformers / NLTK</p>
 						</div>
 					</article>
-				</section> -->
+				</section>
 
 				<section id="education" class="experience-group" aria-labelledby="education-heading">
 					<h3 id="education-heading">Education</h3>
@@ -545,9 +546,8 @@
 								Programming for Data Science <span>(Distinction)</span> ·
 								Final Year Project: AlphaReGen <span>(Grade A)</span>
 							</p>
-							<!-- <p>Highlights: Internship (Distinction) · Programming for Data Science (Distinction) · Final Year Project: AlphaReGen (Grade A)</p> -->
 							<p class="experience-facts experience-coursework">
-								<strong>Modules:</strong> 
+								<strong>Modules:</strong>
 								Secure Coding · Information Security · Linux Administration and Security · 
 								AWS Cloud Foundations · Programming in Security
 							</p>
@@ -569,6 +569,7 @@
 						<div>
 							<h4>Treasurer</h4>
 							<p class="experience-org">SUTD Diving Club</p>
+							<!-- TODO(LEADERSHIP_TREASURER): Add one verified sentence describing responsibilities and scope. -->
 						</div>
 					</article>
 					<article class="experience-row">
@@ -577,7 +578,7 @@
 						</div>
 						<div>
 							<h4>Maker Guide</h4>
-							<p class="experience-org">SUTD Innovation Maker Breaker Space</p>
+							<p class="experience-org">SUTD Innovation Maker Breaker Space</p>							<!-- TODO(LEADERSHIP_MAKER_GUIDE): Add one verified sentence about tools, workshops, or peer support. -->
 						</div>
 					</article>
 					<article class="experience-row">
@@ -596,13 +597,13 @@
 				<div class="section-heading">
 					<div>
 						<span class="eyebrow">04 / THOUGHTS</span>
-						<h2>What’s on my mind<span class="heading-dot">.</span></h2>
+						<h2 id="notes-heading" tabindex="-1">What’s on my mind<span class="heading-dot">.</span></h2>
 					</div>
 					<span class="section-meta">Essays &amp; field notes</span>
 				</div>
 				
 				<div class="writing-list"> 
-					<button type="button" data-thought="future-of-software-engineering.md" aria-haspopup="dialog" hidden></button>
+					<a class="thought-link" href="#thought/future-of-software-engineering" data-thought="future-of-software-engineering.md" aria-haspopup="dialog" hidden></a>
 					<!-- <button type="button" data-thought="article-2.md" aria-haspopup="dialog" hidden></button> -->
 					<!-- <button type="button" data-thought="article-3.md" aria-haspopup="dialog" hidden></button> -->
 				</div>
@@ -617,7 +618,9 @@
 					<a class="button outline" href="images/resume.pdf" download="Foo-Wei-Ming-Resume.pdf">Download PDF <span aria-hidden="true">↓</span></a>
 				</div>
 				<div class="resume-preview">
-					<img src="images/resume.png" width="1415" height="2000" alt="Résumé" loading="lazy" />
+					<a href="images/resume.pdf" target="_blank" rel="noopener noreferrer" aria-label="Open résumé PDF in a new tab">
+						<img src="images/resume.png" width="1415" height="2000" alt="Résumé" loading="lazy" />
+					</a>
 				</div>
 			</section>
 
