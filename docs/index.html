@@ -138,7 +138,7 @@
 						</h2>
 					</div>
 					<span class="section-meta">
-						2 selected projects
+						3 selected projects
 					</span>
 				</div>
 
@@ -195,10 +195,16 @@
 										</tbody>
 									</table>
 								</div>
-								<pre id="alpha-firewall-log" data-alpha-view="policy" hidden></pre>
+								<!-- These logs display line breaks and spaces exactly as written. -->
+								<pre id="alpha-firewall-log" data-alpha-view="policy" hidden>
+									00:01 action=pass src=192.168.1.20 dst=203.0.113.20 proto=udp 
+									dport=53 policy=baseline reason=direct-dns
+								</pre>
 								<div data-alpha-view="outcome" hidden>
-									<pre id="alpha-receiver-log"></pre>
-									<samp class="alpha-recovery" id="alpha-recovery"></samp>
+									<pre id="alpha-receiver-log">
+										00:07 status=complete marker=www.chess.com
+									</pre>
+									<samp class="alpha-recovery" id="alpha-recovery">Received data: secret</samp>
 								</div>
 								<div data-alpha-view="compare" hidden>
 									<table class="alpha-comparison" aria-label="The same DNS queries under two firewall policies">
@@ -264,8 +270,73 @@
 								>Python / Scapy / VMware / pfSense / Palo Alto / Wireshark</span><button type="button" class="text-link" data-story="alpharegen" aria-haspopup="dialog" aria-controls="reader">
 								Read the engineering case study ↗
 							</button>
-							<!-- TODO(ALPHAREGEN_REPOSITORY_URL): Add the real source repository link once the code is organised. -->
 						</div>
+						<template id="story-alpharegen" data-label="ENGINEERING CASE STUDY / ALPHAREGEN V1" data-title="Traffic generation, firewall policy, and packet evidence in one testbed">
+							<h3>Problem and my contribution</h3>
+							<p>
+								Lecturers needed practical exercises without spending each lesson setting
+								up individual services. AlphaReGen paired a Python command-line traffic
+								generator, AlphaGen, with a responder, AlphaRes, in a reusable VMware lab.
+								I led the five-person team, built the shared software architecture, and
+								implemented port-scanning and ARP exercises. I integrated and standardised
+								teammates’ protocol modules and troubleshot their behaviour on Oracle
+								Linux. Firewall configuration and testing were team deliverables.
+							</p>
+							<h3>Generator–responder design</h3>
+							<p>
+								AlphaGen selects protocol handlers and coordinates AlphaRes over a TCP
+								command channel, separate from the exercise traffic. AlphaRes starts the
+								matching service as a subprocess. Shared helpers provide menus, input
+								validation, learner explanations and Wireshark filters, giving contributed
+								modules a consistent interface. Interactive and verbose modes expose
+								inputs and response details so learners can connect each command to the
+								resulting traffic. Scapy crafts packets for header-level
+								exercises; application services use libraries such as Paramiko,
+								pyftpdlib, and Flask with SQLite. This distinction lets students examine
+								both packet behaviour and service interactions without manually setting
+								up each target.
+							</p>
+							<h3>Network and firewall testing</h3>
+							<p>
+								The testbed separated Inside, Outside and DMZ networks. A Linux cloud
+								simulator handled routing and NAT; a dedicated management client provided
+								firewall administration access. Our team configured Palo Alto and pfSense
+								firewalls and tested traffic across these boundaries. We generated known
+								actions, compared firewall records and Wireshark captures with responder
+								output, then adjusted policy and repeated the test. Results documented
+								which transfers were stopped, which reached the responder, and what the
+								captures showed under the tested configurations. These were lab findings,
+								not general rankings of either product.
+							</p>
+							<h3>What the DNS exercise demonstrates</h3>
+							<p>
+								In the documented DNS Exfiltration Raw exercise, AlphaGen sends crafted
+								queries directly to AlphaRes. Each <code>www.youtube.com.sgX</code> name
+								carries a character; <code>www.chess.com</code> signals completion.
+								AlphaRes reconstructs the data. These names are signalling strings, not
+								requests to the public websites. The concept demo shows how network rules
+								can forward DNS without inspecting query names. Its comparison repeats
+								the traffic under an illustrative destination restriction: only approved
+								DNS servers are reachable. This stops the transfer without claiming that
+								the firewall recognised the hidden secret.
+							</p>
+							<h3>Handover and lessons</h3>
+							<p>
+								The handover included user and developer documentation, a firewall
+								administration guide, configuration exports and a setup script for
+								rebuilding the environment. The project received Grade A, and AlphaReGen
+								v1 was integrated into Singapore Polytechnic’s
+								<a href="https://www.sp.edu.sg/courses/schools/soc/cybersecurity-digital-forensics#section-2" target="_blank" rel="noopener noreferrer">Cybersecurity Infrastructure Configuration module</a>.
+								A future revision would add responder readiness checks, strengthen
+								subprocess cleanup, and introduce packet-capture regression tests to
+								catch integration failures before classroom use.
+							</p>
+							<p class="alpha-case-stack">
+								Python / Scapy / Socket programming / VMware / Oracle Linux /
+								Network segmentation / NAT / Firewall policy / pfSense / Palo Alto /
+								Wireshark / Packet analysis
+							</p>
+						</template>
 					</div>
 				</article>
 
@@ -309,7 +380,7 @@
 										</div>
 										<div class="portfolio-mini-content">
 											<div class="portfolio-mini-topline">
-												<span>02 / Projects</span><span>2 selected works</span>
+												<span>02 / Projects</span><span>2 projects shown</span>
 											</div>
 											<div class="portfolio-mini-projects">
 												<div class="portfolio-mini-project">
@@ -334,7 +405,7 @@
 												</div>
 											</div>
 											<div class="portfolio-mini-footer">
-												<span>2 selected projects</span><span>Grid view</span>
+												<span>2 projects shown</span><span>Grid view</span>
 											</div>
 										</div>
 									</div>
@@ -361,98 +432,56 @@
 						</div>
 					</article>
 
-					<!-- <article class="project" data-category="tools">
-						<div class="prism-preview">
-							<div class="preview-top">
-								<span>prism / interaction study</span><span>TRY THE CONTROL</span>
-							</div>
-							<div class="prism-stage">
-								<div class="control-example">
-									<span>Motion preference</span><button
-										id="motion-toggle"
-										role="switch"
-										aria-checked="true"
-										aria-label="Enable motion"
-									>
-										<span></span>
-									</button>
-								</div>
-								<div class="prism-squares" aria-hidden="true">
-									<i></i><i></i><i></i>
-								</div>
-								<p id="motion-caption" role="status">
-									Small movements. Clear feedback.
-								</p>
-							</div>
-							<span class="preview-caption"
-								>Keyboard included. Press Tab, then Space.</span>
+					<article class="project data-analysis-project" id="data-analysis" data-category="data" aria-labelledby="data-analysis-title">
+						<div class="hdb-preview" id="hdb-preview">
+							<div class="preview-top hdb-preview-header"><span>Ang Mo Kio · published HDB resale medians</span></div>
+
+							<!-- HDB_FALLBACK_START -->
+							<svg id="hdb-chart" class="hdb-chart is-fallback" viewBox="0 0 300 282" role="img" aria-labelledby="hdb-chart-title hdb-chart-desc">
+							<title id="hdb-chart-title">Did the price gap widen?</title>
+							<desc id="hdb-chart-desc">Ang Mo Kio, 3-room and 5-room nominal quarterly resale medians, 20 selected quarters, 2007 Q2–2022 Q1. Scale: S$0–S$800,000; gaps are unpublished values. 2022 Q1: S$352,500 gap, 100.7% above 3-room. The dollar gap widened, but the premium fell from 116.3% to 100.7%.</desc>
+							<text class="hdb-question" x="18" y="23" aria-hidden="true">Did the price gap widen?</text>
+							<line class="hdb-grid" x1="48" x2="282" y1="194.0" y2="194.0" aria-hidden="true"/><text class="hdb-axis" x="41" y="198.0" text-anchor="end" aria-hidden="true">0</text>
+							<line class="hdb-grid" x1="48" x2="282" y1="157.0" y2="157.0" aria-hidden="true"/><text class="hdb-axis" x="41" y="161.0" text-anchor="end" aria-hidden="true">200k</text>
+							<line class="hdb-grid" x1="48" x2="282" y1="120.0" y2="120.0" aria-hidden="true"/><text class="hdb-axis" x="41" y="124.0" text-anchor="end" aria-hidden="true">400k</text>
+							<line class="hdb-grid" x1="48" x2="282" y1="83.0" y2="83.0" aria-hidden="true"/><text class="hdb-axis" x="41" y="87.0" text-anchor="end" aria-hidden="true">600k</text>
+							<line class="hdb-grid" x1="48" x2="282" y1="46.0" y2="46.0" aria-hidden="true"/><text class="hdb-axis" x="41" y="50.0" text-anchor="end" aria-hidden="true">S$800k</text>
+							<text class="hdb-axis" x="48.0" y="218" text-anchor="start" aria-hidden="true">2007 Q2</text>
+							<text class="hdb-axis" x="282.0" y="218" text-anchor="end" aria-hidden="true">2022 Q1</text>
+							<line class="hdb-cursor" x1="282.0" x2="282.0" y1="46" y2="194" aria-hidden="true"/>
+							<path class="hdb-series hdb-series-0" d="M48.00,162.18 L63.86,151.45 L71.80,148.49 L75.76,148.79 L79.73,148.49 L95.59,140.35 L119.39,130.82 L143.19,125.92 L151.12,128.14 L159.05,128.32 L166.98,132.03 L174.92,136.00 L198.71,135.17 L214.58,138.50 L230.44,142.20 L250.27,144.14 L254.24,143.68 L266.14,137.57 L270.10,134.43 L282.00,129.25" aria-hidden="true"/>
+							<circle class="hdb-point hdb-point-1" cx="159.05084745762713" cy="76.525" r="2" aria-hidden="true"/>
+							<path class="hdb-series hdb-series-1" d="M48.00,125.18 L63.86,106.70 L71.80,107.27 M79.73,103.35 L95.59,92.25 L119.39,81.82 L143.19,70.51 M159.05,76.53 M174.92,75.60 L198.71,64.50 L214.58,71.90 L230.44,57.86 L250.27,84.78 L254.24,91.33 L266.14,70.05 L270.10,83.00 L282.00,64.04" aria-hidden="true"/>
+							<path id="hdb-gap-arrow" class="hdb-arrow" d="M282.0,64.0375V129.25M279.0,69.0375L282.0,64.0375L285.0,69.0375M279.0,124.25L282.0,129.25L285.0,124.25" aria-hidden="true"/>
+							<circle class="hdb-point hdb-point-0" cx="282.0" cy="129.25" r="3.5" aria-hidden="true"/>
+							<circle class="hdb-point hdb-point-1" cx="282.0" cy="64.0375" r="3.5" aria-hidden="true"/>
+							<text id="hdb-gap-value" class="hdb-gap-value" x="266.0" y="94.64375" text-anchor="end" aria-hidden="true">S$352,500 gap</text>
+							<text id="hdb-gap-percent" class="hdb-gap-percent" x="266.0" y="109.64375" text-anchor="end" aria-hidden="true">100.7% above 3-room</text>
+							<text id="hdb-insight" class="hdb-insight" x="18" y="248" aria-hidden="true"><tspan x="18" dy="0">The dollar gap widened, but the</tspan><tspan x="18" dy="18">premium fell from 116.3% to 100.7%.</tspan></text>
+							</svg>
+							<script type="application/json" id="hdb-gap-data">{"source":{"agency":"Housing & Development Board","dataset":"Median Resale Prices for Registered Applications by Town and Flat Type","url":"https://data.gov.sg/datasets/d_b51323a474ba789fb4cc3db58a3116d4/view","licence":"https://data.gov.sg/open-data-licence","snapshotUpdated":"2022-06-22","originalDownloadDate":null},"town":"Ang Mo Kio","quarters":["2007-Q2","2008-Q2","2008-Q4","2009-Q1","2009-Q2","2010-Q2","2011-Q4","2013-Q2","2013-Q4","2014-Q2","2014-Q4","2015-Q2","2016-Q4","2017-Q4","2018-Q4","2020-Q1","2020-Q2","2021-Q1","2021-Q2","2022-Q1"],"types":["3-ROOM","5-ROOM"],"prices":{"3-ROOM":[172000,230000,246000,244400,246000,290000,341500,368000,356000,355000,335000,313500,318000,300000,280000,269500,272000,305000,322000,350000],"5-ROOM":[372000,471900,468800,null,490000,550000,606400,667500,null,635000,null,640000,700000,660000,735900,590400,555000,670000,600000,702500]}}</script>
+							<!-- HDB_FALLBACK_END -->
+							 
+							<ul class="hdb-legend" aria-label="Flat types"><li><i class="hdb-swatch hdb-swatch-0" aria-hidden="true"></i>3-room</li><li><i class="hdb-swatch hdb-swatch-1" aria-hidden="true"></i>5-room</li></ul>
+							<div class="hdb-scrubber">
+                                <label for="hdb-quarter">Quarter</label>
+                                <input id="hdb-quarter" type="range" min="0" max="19" step="1" value="19" aria-controls="hdb-chart" aria-describedby="hdb-chart-note" aria-valuetext="2022 Q1, S$352,500 gap, 100.7% above 3-room" disabled>
+                                <span id="hdb-quarter-value" aria-hidden="true">2022 Q1</span>
+                            </div>
+							<p class="hdb-note" id="hdb-chart-note">20 selected quarters · gaps mean unpublished values.</p>
+							<p class="hdb-source">Source: <a href="https://data.gov.sg/datasets/d_b51323a474ba789fb4cc3db58a3116d4/view" target="_blank" rel="noopener noreferrer">HDB via data.gov.sg</a> · <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener noreferrer">Open Data Licence</a></p>
+
 						</div>
-						<div class="compact-body">
-							<div class="project-title-row">
-								<h3>
-									Prism UI
-									<span class="placeholder-inline">/ placeholder</span>
-								</h3>
-								<span class="project-year">03</span>
-							</div>
-							<p>The details between two states.</p>
-							<p class="project-summary">
-								A small set of accessible interaction primitives. An excuse to
-								spend time on focus, keyboard behaviour, and motion that knows
-								when to stop.
-							</p>
-							<span class="tech">React / ARIA / CSS animations</span><button class="text-link" data-story="prism">
-								Design decisions ↗
-							</button>
+						<div class="compact-body data-card-details">
+							<div class="project-title-row"><h3 id="data-analysis-title">Data Analysis</h3><span class="project-year">03</span></div>
+							<p>From raw CSVs to documented findings.</p>
+							<p class="project-summary">I explore datasets to frame questions and working hypotheses, then clean inconsistent values, align time periods and combine related tables. Using Python, I compare patterns and visualise the results, documenting what the evidence supports, what it challenges and where the analysis falls short.</p>
+							<span class="tech">Python / NumPy / pandas / Matplotlib</span>
+							<!-- TODO(DATA_ANALYSIS_REPOSITORY_URL): Set and verify the repository README URL before revealing this link. -->
+							<a class="text-link" id="data-analysis-link" target="_blank" rel="noopener noreferrer" hidden>Explore the studies ↗</a>
 						</div>
-					</article> -->
+					</article>
 				</div>
-
-				<!-- <article class="project markdown-project" data-category="tools">
-					<div class="markdown-preview">
-						<div class="preview-top">
-							<span>markdownpress / live preview</span><span>EDIT THE SOURCE</span>
-						</div>
-						<div class="markdown-editor">
-							<label for="markdown-source">README.md</label>
-							<textarea id="markdown-source" spellcheck="false" aria-describedby="markdown-help">
-								# Small is a good start
-
-								A compiler should get out of your way.
-
-								- Parse the source
-								- Build the page
-								- Keep the feedback loop short
-							</textarea>
-						</div>
-						<div
-							class="markdown-output"
-							id="markdown-output"
-							aria-label="Rendered Markdown preview"
-						></div>
-						<span id="markdown-help" class="preview-caption"
-							>A tiny browser preview of the idea. Supports headings and
-							lists.</span>
-					</div>
-					<div class="markdown-body">
-						<span class="eyebrow">04 / DEVELOPER TOOLS</span>
-						<h3>
-							MarkdownPress
-							<span class="placeholder-inline">/ placeholder</span>
-						</h3>
-						<p class="project-subtitle">
-							From a folder of notes to a website.
-						</p>
-						<p>
-							A Markdown compiler experiment in Zig and Bun. The goal was a
-							short feedback loop and a build process small enough to
-							understand end to end.
-						</p>
-						<span class="tech">Zig / Bun / Markdown / AST</span><button class="text-link" data-story="markdown">
-							What the first version taught me ↗
-						</button>
-					</div>
-				</article> -->
 			</section>
 
 			<section id="experience" aria-labelledby="experience-heading">
@@ -635,7 +664,7 @@
 						</p>
 
 						<div class="contact-email">
-							<a href="mailto:fooweiming1@gmail.com">fooweiming1@gmail.com</a><button id="copy-email" aria-label="Copy email address">
+							<a href="mailto:fooweiming1@gmail.com">fooweiming1@gmail.com</a><button type="button" id="copy-email" aria-label="Copy email address">
 								Copy <span aria-hidden="true">⧉</span>
 							</button>
 						</div>
@@ -654,7 +683,31 @@
 						<p>
 							Project illustrations are interactive studies, not screenshots of finished products.
 						</p>
-						<button class="text-link" data-story="colophon">Colophon & references ↗</button> 
+						<button type="button" class="text-link" data-story="colophon">Colophon & references ↗</button>
+						<template id="story-colophon" data-label="ABOUT THIS SITE" data-title="A personal site with room for the details">
+							<p>
+								I built this space to document my academic journey, professional experiences, projects and interests.
+								It is a space to showcase what I have worked on, reflect on what I have learnt, and share what I hope to explore next.
+							</p>
+							<h3>Built with</h3>
+							<p>
+								The visual direction was developed in Stitch, with Codex assisting in the implementation.
+								The website is built using plain HTML, CSS and JavaScript.
+								SVG powers the custom visual elements.
+							</p>
+							<p>
+								The code and final details were reviewed and refined by hand.
+								The design uses Manrope and JetBrains Mono typography, paired with a warm neutral palette, charcoal text and a clay accent.
+							</p>
+							<h3>Design references</h3>
+							<p>
+								The <a href="https://github.com/Evavic44/portfolio-ideas" target="_blank" rel="noopener noreferrer">Portfolio Ideas collection</a>
+								informed the broader direction.
+								<a href="https://www.taniarascia.com/" target="_blank" rel="noopener noreferrer">Tania Rascia</a>
+								and <a href="https://victoreke.com/" target="_blank" rel="noopener noreferrer">Victor Eke</a>
+								inspired how projects, writing and experiences are presented with room to breathe.
+							</p>
+						</template>
 					</div>
 				</div>
 			</section>
@@ -670,13 +723,13 @@
 	<dialog id="reader" aria-labelledby="reader-title">
 		<div class="reader-toolbar">
 			<span id="reader-label" class="eyebrow"></span>
-			<button id="close-reader" aria-label="Close reading panel">Close ×</button>
+			<button type="button" id="close-reader" aria-label="Close reading panel">Close ×</button>
 		</div>
 		<h2 id="reader-title"></h2>
 		<div id="reader-body"></div>
 		<div class="reader-footer">
 			Foo Wei Ming / Personal portfolio
-			<button id="reader-done">Back to the site ↗</button>
+			<button type="button" id="reader-done">Back to the site ↗</button>
 		</div>
 	</dialog>
 </body>

@@ -85,11 +85,6 @@ if (alphaPreview && alphaNext) {
     $("#alpha-evidence-address").textContent = step.address;
     $("#alpha-rule-state").textContent = compared ? "Restricted DNS" : "Baseline";
     $("#alpha-buffer").textContent = compared ? "No data" : received ? "secret" : "Empty";
-    $("#alpha-firewall-log").textContent = stepIndex >= 2
-      ? `00:01 action=${compared ? "drop" : "pass"}\nsrc=192.168.1.20\ndst=203.0.113.20\nproto=udp dport=53\npolicy=${compared ? "restricted-dns" : "baseline"}\n${compared ? "reason=unapproved-dns" : "reason=direct-dns"}`
-      : "";
-    $("#alpha-receiver-log").textContent = received ? "00:07 status=complete\nmarker=www.chess.com" : "";
-    $("#alpha-recovery").textContent = received ? "Received data: secret" : "";
     alphaPreview.querySelectorAll("[data-alpha-view]").forEach((view) => {
       view.hidden = view.dataset.alphaView !== step.phase;
     });
@@ -125,56 +120,6 @@ if (alphaPreview && alphaNext) {
   measureAlphaCaptions();
 }
 
-// Retained templates initialise only when their complete controls are present.
-const motionToggle = $("#motion-toggle");
-const prismPreview = $(".prism-preview");
-const motionCaption = $("#motion-caption");
-if (motionToggle && prismPreview && motionCaption) {
-  const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
-  motionToggle.addEventListener("click", () => {
-    const enabled = motionToggle.getAttribute("aria-checked") !== "true";
-    motionToggle.setAttribute("aria-checked", String(enabled));
-    prismPreview.classList.toggle("paused", !enabled);
-    motionCaption.textContent = enabled
-      ? reduced()
-        ? "Your system prefers reduced motion."
-        : "Small movements. Clear feedback."
-      : "Motion paused. Your choice stays in control.";
-  });
-  if (reduced()) motionCaption.textContent = "Your system prefers reduced motion.";
-}
-
-const markdownSource = $("#markdown-source");
-const markdownOutput = $("#markdown-output");
-if (markdownSource && markdownOutput) {
-  function renderMarkdown() {
-    const fragment = document.createDocumentFragment();
-    let list = null;
-    markdownSource.value.split("\n").forEach((rawLine) => {
-      const line = rawLine.trimStart();
-      if (line.startsWith("- ")) {
-        if (!list) {
-          list = document.createElement("ul");
-          fragment.append(list);
-        }
-        const item = document.createElement("li");
-        item.textContent = line.slice(2);
-        list.append(item);
-        return;
-      }
-      list = null;
-      if (!line.trim()) return;
-      const heading = line.match(/^(#{1,3})\s+(.*)/);
-      const element = document.createElement(heading ? `h${Number(heading[1].length) + 3}` : "p");
-      element.textContent = heading ? heading[2] : line;
-      fragment.append(element);
-    });
-    markdownOutput.replaceChildren(fragment);
-  }
-  markdownSource.addEventListener("input", renderMarkdown);
-  renderMarkdown();
-}
-
 const portfolioPreview = $(".portfolio-preview");
 const portfolioBreakpoints = $$("[data-preview-breakpoint]");
 const portfolioLayouts = {
@@ -193,180 +138,143 @@ portfolioBreakpoints.forEach((button) => {
       `${portfolioLayouts[width]} layout · ${width}px reference`;
   });
 });
-const stories = {
-  alpharegen: {
-    label: "ENGINEERING CASE STUDY / ALPHAREGEN V1",
-    title: "Traffic generation, firewall policy, and packet evidence in one testbed",
-    body: /* HTML */ `
-      <h3>Problem and my contribution</h3>
-      <p>
-        Lecturers needed practical exercises without spending each lesson setting
-        up individual services. AlphaReGen paired a Python command-line traffic
-        generator, AlphaGen, with a responder, AlphaRes, in a reusable VMware lab.
-        I led the five-person team, built the shared software architecture, and
-        implemented port-scanning and ARP exercises. I integrated and standardised
-        teammates’ protocol modules and troubleshot their behaviour on Oracle
-        Linux. Firewall configuration and testing were team deliverables.
-      </p>
-      <h3>Generator–responder design</h3>
-      <p>
-        AlphaGen selects protocol handlers and coordinates AlphaRes over a TCP
-        command channel, separate from the exercise traffic. AlphaRes starts the
-        matching service as a subprocess. Shared helpers provide menus, input
-        validation, learner explanations and Wireshark filters, giving contributed
-        modules a consistent interface. Interactive and verbose modes expose
-        inputs and response details so learners can connect each command to the
-        resulting traffic. Scapy crafts packets for header-level
-        exercises; application services use libraries such as Paramiko,
-        pyftpdlib, and Flask with SQLite. This distinction lets students examine
-        both packet behaviour and service interactions without manually setting
-        up each target.
-      </p>
-      <h3>Network and firewall testing</h3>
-      <p>
-        The testbed separated Inside, Outside and DMZ networks. A Linux cloud
-        simulator handled routing and NAT; a dedicated management client provided
-        firewall administration access. Our team configured Palo Alto and pfSense
-        firewalls and tested traffic across these boundaries. We generated known
-        actions, compared firewall records and Wireshark captures with responder
-        output, then adjusted policy and repeated the test. Results documented
-        which transfers were stopped, which reached the responder, and what the
-        captures showed under the tested configurations. These were lab findings,
-        not general rankings of either product.
-      </p>
-      <h3>What the DNS exercise demonstrates</h3>
-      <p>
-        In the documented DNS Exfiltration Raw exercise, AlphaGen sends crafted
-        queries directly to AlphaRes. Each <code>www.youtube.com.sgX</code> name
-        carries a character; <code>www.chess.com</code> signals completion.
-        AlphaRes reconstructs the data. These names are signalling strings, not
-        requests to the public websites. The concept demo shows how network rules
-        can forward DNS without inspecting query names. Its comparison repeats
-        the traffic under an illustrative destination restriction: only approved
-        DNS servers are reachable. This stops the transfer without claiming that
-        the firewall recognised the hidden secret.
-      </p>
-      <h3>Handover and lessons</h3>
-      <p>
-        The handover included user and developer documentation, a firewall
-        administration guide, configuration exports and a setup script for
-        rebuilding the environment. The project received Grade A, and AlphaReGen
-        v1 was integrated into Singapore Polytechnic’s
-        <a href="https://www.sp.edu.sg/courses/schools/soc/cybersecurity-digital-forensics#section-2" target="_blank" rel="noopener noreferrer">Cybersecurity Infrastructure Configuration module</a>.
-        A future revision would add responder readiness checks, strengthen
-        subprocess cleanup, and introduce packet-capture regression tests to
-        catch integration failures before classroom use.
-      </p>
-      <p class="alpha-case-stack">
-        Python / Scapy / Socket programming / VMware / Oracle Linux /
-        Network segmentation / NAT / Firewall policy / pfSense / Palo Alto /
-        Wireshark / Packet analysis
-      </p>
-    `,
-  },
-  prism: {
-    label: "PROJECT 03 / DESIGN DECISIONS",
-    title: "Prism UI: the switch is the small part",
-    body: /* HTML */ `
-      <p>
-        A toggle looks like a track and a thumb. Its behaviour includes a name,
-        a state, a keyboard interaction, visible focus, and a decision about
-        what happens when motion is unwanted.
-      </p>
-      <h3>Start with the browser</h3>
-      <p>
-        The demo uses a real button with <code>role="switch"</code> and an
-        explicit <code>aria-checked</code> state. It is reachable with Tab and
-        works with Space or Enter.
-      </p>
-      <h3>Motion should explain a change</h3>
-      <p>
-        The movement between on and off connects the two states. The small
-        interaction study pauses when the control is switched off. A system
-        preference for reduced motion takes precedence over decorative
-        animation.
-      </p>
-      <h3>A smaller primitive</h3>
-      <p>
-        The aim of the project concept is to expose behaviour without dictating
-        the whole appearance. A consumer should be able to choose a different
-        size or colour without reimplementing keyboard support.
-      </p>
-      <p>
-        The preview here is plain JavaScript and CSS; the larger reference
-        project is a React component library concept.
-      </p>
-    `,
-  },
-  markdown: {
-    label: "PROJECT 04 / IMPLEMENTATION NOTES",
-    title: "MarkdownPress: a short feedback loop",
-    body: /* HTML */ `
-      <p>
-        There is something useful about a tool whose entire job fits on one
-        line: turn a directory of Markdown into a directory of HTML.
-      </p>
-      <h3>The smallest useful pipeline</h3>
-      <pre>
-source files
-  → parser
-  → syntax tree
-  → page template
-  → static HTML</pre
-      >
-      <p>
-        The reference concept explores Zig and Bun for the compiler and
-        development workflow. A first version needs predictable output and clear
-        errors before it needs incremental caching.
-      </p>
-      <h3>The cache question</h3>
-      <p>
-        A cache only helps when its inputs are defined. Source text is one
-        input; templates, parser versions, and syntax-highlighting rules can all
-        affect the final page too.
-      </p>
-      <h3>About the editor</h3>
-      <p>
-        The editor on this site is an intentionally small browser
-        implementation. It supports headings, paragraphs, and bullet lists. It
-        inserts text through the DOM rather than interpreting user input as
-        HTML.
-      </p>
-      <p>
-        Try adding a new heading or changing a list item. This demonstrates the
-        feedback loop, not the performance of a native compiler.
-      </p>
-    `,
-  },
-  colophon: {
-    label: "ABOUT THIS SITE",
-    title: "A personal site with room for the details",
-    body: /* HTML */ `
-      <p>
-        I built this space to document my academic journey, professional experiences, projects and interests. 
-        It is a space to showcase what I have worked on, reflect on what I have learnt, and share what I hope to explore next.
-      </p>
-      <h3>Built with</h3>
-      <p>
-        The visual direction was developed in Stitch, with Codex assisting in the implementation. 
-        The website is built using plain HTML, CSS and JavaScript. 
-        SVG powers the custom visual elements.
-      </p>
-      <p>
-        The code and final details were reviewed and refined by hand. 
-        The design uses Manrope and JetBrains Mono typography, paired with a warm neutral palette, charcoal text and a clay accent.
-      </p>
-      <h3>Design references</h3>
-      <p>
-        The <a href="https://github.com/Evavic44/portfolio-ideas" target="_blank" rel="noopener noreferrer">Portfolio Ideas collection</a>
-        informed the broader direction.
-        <a href="https://www.taniarascia.com/" target="_blank" rel="noopener noreferrer">Tania Rascia</a>
-        and <a href="https://victoreke.com/" target="_blank" rel="noopener noreferrer">Victor Eke</a>
-        inspired how projects, writing and experiences are presented with room to breathe.
-      </p>
-    `,
-  },
-};
+// One archived comparison, embedded beside its static SVG fallback.
+const hdbPreview = $("#hdb-preview");
+if (hdbPreview) {
+  const svg = $("#hdb-chart");
+  const slider = $("#hdb-quarter");
+  const quarterLabel = $("#hdb-quarter-value");
+  const namespace = "http://www.w3.org/2000/svg";
+  let renderedWidth = 0;
+
+  function element(tag, attributes, text) {
+    const node = document.createElementNS(namespace, tag);
+    for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, value);
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  try {
+    const data = JSON.parse($("#hdb-gap-data").textContent);
+    const quarters = data.quarters.map((quarter) => Number(quarter.slice(0, 4)) * 4 + Number(quarter.slice(-1)) - 1);
+    const money = (value) => `S$${value.toLocaleString("en-SG")}`;
+    const baseGap = data.prices["5-ROOM"][0] - data.prices["3-ROOM"][0];
+    const basePremium = baseGap / data.prices["3-ROOM"][0] * 100;
+
+    function comparison(index) {
+      const smaller = data.prices["3-ROOM"][index];
+      const larger = data.prices["5-ROOM"][index];
+      if (smaller === null || larger === null) {
+        return { gap: null, premium: null, lines: ["No 5-room median was published.", "The gap cannot be calculated."] };
+      }
+      const gap = larger - smaller;
+      const premium = gap / smaller * 100;
+      let lines;
+      if (index === 0) {
+        lines = [`Starting gap: ${money(gap)}.`, `${premium.toFixed(1)}% above the 3-room median.`];
+      } else {
+        const absolute = Math.sign(gap - baseGap);
+        const relative = Math.sign(Number(premium.toFixed(1)) - Number(basePremium.toFixed(1)));
+        if (absolute === 0 || relative === 0) {
+          const word = absolute > 0 ? "wider" : "narrower";
+          lines = [absolute ? `The dollar gap is ${word} than at the start.` : "The dollar gap is unchanged from the start.", `The relative premium is ${premium.toFixed(1)}% above 3-room.`];
+        } else {
+          const direction = absolute > 0 ? "widened" : "narrowed";
+          const connective = absolute === relative ? "and" : "but";
+          const change = relative > 0 ? "rose" : "fell";
+          lines = [`The dollar gap ${direction}, ${connective} the`, `premium ${change} from ${basePremium.toFixed(1)}% to ${premium.toFixed(1)}%.`];
+        }
+      }
+      return { gap, premium, lines };
+    }
+
+    function renderHdb() {
+      const width = svg.getBoundingClientRect().width;
+      if (!width) return;
+      renderedWidth = width;
+      const index = Number(slider.value);
+      const quarter = data.quarters[index].replace("-", " ");
+      const result = comparison(index);
+      const valueText = result.gap === null
+        ? `${quarter}, comparison unavailable: no published 5-room median`
+        : `${quarter}, ${money(result.gap)} gap, ${result.premium.toFixed(1)}% above 3-room`;
+      const left = 48, right = width - 18, top = 46, bottom = 194;
+      const x = (quarter) => left + (quarter - quarters[0]) / (quarters[quarters.length - 1] - quarters[0]) * (right - left);
+      const y = (price) => bottom - price / 800_000 * (bottom - top);
+      const children = [
+        element("title", { id: "hdb-chart-title" }, "Did the price gap widen?"),
+        element("desc", { id: "hdb-chart-desc" }, `Ang Mo Kio, 3-room and 5-room nominal quarterly resale medians, 20 selected quarters, 2007 Q2–2022 Q1. Scale: S$0–S$800,000; gaps are unpublished values. ${valueText}. ${result.lines.join(" ")}`),
+        element("text", { class: "hdb-question", x: 18, y: 23, "aria-hidden": "true" }, "Did the price gap widen?"),
+      ];
+      for (const [price, label] of [[0, "0"], [200000, "200k"], [400000, "400k"], [600000, "600k"], [800000, "S$800k"]]) {
+        children.push(element("line", { class: "hdb-grid", x1: left, x2: right, y1: y(price), y2: y(price), "aria-hidden": "true" }));
+        children.push(element("text", { class: "hdb-axis", x: left - 7, y: y(price) + 4, "text-anchor": "end", "aria-hidden": "true" }, label));
+      }
+      const ticks = [[quarters[0], "2007 Q2", "start"], [quarters[quarters.length - 1], "2022 Q1", "end"]];
+      if (width >= 310) ticks.splice(1, 0, [2015 * 4, "2015", "middle"]);
+      for (const [quarter, label, anchor] of ticks) {
+        children.push(element("text", { class: "hdb-axis", x: x(quarter), y: 218, "text-anchor": anchor, "aria-hidden": "true" }, label));
+      }
+      const cursor = x(quarters[index]);
+      children.push(element("line", { class: "hdb-cursor", x1: cursor, x2: cursor, y1: top, y2: bottom, "aria-hidden": "true" }));
+      data.types.forEach((kind, number) => {
+        const values = data.prices[kind];
+        let start = true;
+        const path = [];
+        values.forEach((price, i) => {
+          if (price === null) { start = true; return; }
+          path.push(`${start ? "M" : "L"}${x(quarters[i]).toFixed(2)},${y(price).toFixed(2)}`);
+          start = false;
+          if (values[i - 1] == null && values[i + 1] == null) {
+            children.push(element("circle", { class: `hdb-point hdb-point-${number}`, cx: x(quarters[i]), cy: y(price), r: 2, "aria-hidden": "true" }));
+          }
+        });
+        children.push(element("path", { class: `hdb-series hdb-series-${number}`, d: path.join(" "), "aria-hidden": "true" }));
+      });
+      if (result.gap !== null) {
+        const labelOnLeft = cursor > width / 2;
+        const arrowX = cursor;
+        const high = y(data.prices["5-ROOM"][index]), low = y(data.prices["3-ROOM"][index]);
+        const arrow = `M${arrowX},${high}V${low}M${arrowX - 3},${high + 5}L${arrowX},${high}L${arrowX + 3},${high + 5}M${arrowX - 3},${low - 5}L${arrowX},${low}L${arrowX + 3},${low - 5}`;
+        children.push(element("path", { id: "hdb-gap-arrow", class: "hdb-arrow", d: arrow, "aria-hidden": "true" }));
+        const labelX = labelOnLeft ? Math.max(120, cursor - 16) : Math.min(width - 120, cursor + 16);
+        const anchor = labelOnLeft ? "end" : "start";
+        const middle = (high + low) / 2;
+        children.push(element("text", { id: "hdb-gap-value", class: "hdb-gap-value", x: labelX, y: middle - 2, "text-anchor": anchor, "aria-hidden": "true" }, `${money(result.gap)} gap`));
+        children.push(element("text", { id: "hdb-gap-percent", class: "hdb-gap-percent", x: labelX, y: middle + 13, "text-anchor": anchor, "aria-hidden": "true" }, `${result.premium.toFixed(1)}% above 3-room`));
+      }
+      data.types.forEach((kind, number) => {
+        const price = data.prices[kind][index];
+        if (price !== null) children.push(element("circle", { class: `hdb-point hdb-point-${number}`, cx: cursor, cy: y(price), r: 3.5, "aria-hidden": "true" }));
+      });
+      const insight = element("text", { id: "hdb-insight", class: "hdb-insight", x: 18, y: 248, "aria-hidden": "true" });
+      result.lines.forEach((line, i) => insight.append(element("tspan", { x: 18, dy: i ? 18 : 0 }, line)));
+      children.push(insight);
+      svg.setAttribute("viewBox", `0 0 ${width} 282`);
+      svg.classList.remove("is-fallback");
+      svg.replaceChildren(...children);
+      quarterLabel.textContent = quarter;
+      // The native slider announces one concise value; resizing adds no live update.
+      if (slider.getAttribute("aria-valuetext") !== valueText) slider.setAttribute("aria-valuetext", valueText);
+    }
+
+    slider.max = data.quarters.length - 1;
+    renderHdb();
+    slider.disabled = false;
+    slider.addEventListener("input", renderHdb);
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(() => {
+        if (svg.getBoundingClientRect().width !== renderedWidth) renderHdb();
+      }).observe(hdbPreview);
+    } else {
+      addEventListener("resize", renderHdb);
+    }
+  } catch {
+    // Keep the generated chart and interpretation readable without enhancement.
+    slider.disabled = true;
+  }
+}
+
 const reader = $("#reader");
 const readerTitle = $("#reader-title");
 const readerBody = $("#reader-body");
@@ -381,23 +289,13 @@ function showReader(label, title, kind = "case") {
   reader.scrollTop = 0;
 }
 
-function addPlaceholderNotice() {
-  const notice = document.createElement("p");
-  notice.className = "placeholder-notice";
-  notice.textContent =
-    "Retained placeholder content from the original design; not documented in my résumé.";
-  readerBody.prepend(notice);
-}
-
 $$("[data-story]").forEach((button) => {
   button.addEventListener("click", () => {
-    const story = stories[button.dataset.story];
-    if (!story) return;
+    const story = document.getElementById(`story-${button.dataset.story}`);
+    if (!(story instanceof HTMLTemplateElement)) return;
     readerReturnFocus = button;
-    readerBody.innerHTML = story.body;
-    const placeholder = ["prism", "markdown"].includes(button.dataset.story);
-    if (placeholder) addPlaceholderNotice();
-    showReader(placeholder ? `PLACEHOLDER / ${story.label}` : story.label, story.title);
+    readerBody.replaceChildren(story.content.cloneNode(true));
+    showReader(story.dataset.label, story.dataset.title);
   });
 });
 
@@ -609,9 +507,15 @@ reader.addEventListener("click", (event) => {
 });
 addEventListener("hashchange", syncThoughtRoute);
 addEventListener("popstate", syncThoughtRoute);
-$("#copy-email").addEventListener("click", async () => {
-  await navigator.clipboard.writeText("fooweiming1@gmail.com");
-  $("#copy-email").textContent = "Copied ✓";
+$("#copy-email").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  const email = $(".contact-email a").textContent.trim();
+  try {
+    await navigator.clipboard.writeText(email);
+  } catch {
+    return;
+  }
+  button.textContent = "Copied ✓";
 });
 const pageSections = $$("main > section");
 const mainNavLinks = $$(".sidebar nav > a");
