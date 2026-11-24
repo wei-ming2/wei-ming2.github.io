@@ -16,6 +16,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 36px;
+  scrollbar-gutter: stable;
 }
 body {
   margin: 0;
@@ -1912,6 +1913,9 @@ footer > span {
 }
 
 /* ---------- Reader / Pop-up ---------- */
+html:has(#reader[open]) {
+  overflow: hidden;
+}
 dialog {
   width: calc(100% - 32px);
   max-width: 690px;

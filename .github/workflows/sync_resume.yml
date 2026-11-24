@@ -79,24 +79,48 @@ jobs:
           import fitz
 
           doc = fitz.open("resume.pdf")
-          doc.save("dist/images/resume.pdf", garbage=4, deflate=True)
-          doc[0].get_pixmap(dpi=300).save("dist/images/resume.png")
+          doc.save("docs/images/resume.pdf", garbage=4, deflate=True)
+          doc[0].get_pixmap(dpi=150).save("docs/images/resume.png")
           PY
           rm -f resume.tex resume.pdf
           rm -rf temp
 
-      # Step 8: Commit and push changes back to github (ignore PDF due metadata: ie date)
+      # Step 8: Update the topline site updated date
+      - name: Update homepage date
+        run: |
+          python - <<'PY'
+          import re
+          from datetime import datetime
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+
+          homepage = Path("docs/index.html")
+          source = homepage.read_text(encoding="utf-8")
+          month = datetime.now(ZoneInfo("Asia/Singapore"))
+          label = month.strftime("%b %Y").upper()
+          homepage.write_text(
+              re.sub(
+                  r'<time id="site-updated" datetime="[^"]*">[^<]*</time>',
+                  f'<time id="site-updated" datetime="{month:%Y-%m}">{label}</time>',
+                  source,
+              ),
+              encoding="utf-8",
+          )
+          PY
+
+      # Step 9: Commit and push changes back to github (ignore PDF due metadata: ie date)
       - name: Push resume to github
         run: |
           # Use official GitHub Actions bot identity for automated commits
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
-          git add dist/images/resume.png
 
-          if ! git diff --cached --quiet -- dist/images/resume.png; then
+          git add docs/images/resume.png
+
+          if ! git diff --cached --quiet -- docs/images/resume.png; then
             # If PNG changed, commit both PDF and PNG
-            git add dist/images/resume.pdf
+            git add docs/images/resume.pdf
+            git add docs/index.html
             git commit -m "updated resume (both PDF & PNG) from Overleaf"
             git push
           fi
