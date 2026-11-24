@@ -9,68 +9,26 @@ if (alphaPreview && alphaNext) {
     {
       phase: "prepare", title: "A SYSTEM IS COMPROMISED", observer: "generator",
       evidence: "AlphaGen · compromised computer", address: "192.168.1.20", next: "Encode in DNS →",
-      caption: "An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.",
     },
     {
       phase: "capture", title: "HIDING THE SECRET IN DNS", observer: "generator",
       evidence: "Wireshark · capture on AlphaGen", address: "192.168.1.20", next: "Check policy →",
-      caption: "DNS normally looks up website addresses. AlphaGen hides `secret` in the query names, one character at a time. Wireshark records the requests sent to the attacker’s server.",
     },
     {
       phase: "policy", title: "THE DATA GOES UNNOTICED", observer: "firewall",
       evidence: "Firewall · baseline decision", address: "192.168.1.1", next: "Verify receiver →",
-      caption: "Here, the firewall checks addresses and ports but doesn’t inspect the DNS query names. The hidden data passes through unnoticed.",
     },
     {
       phase: "outcome", title: "THE SECRET ARRIVES", observer: "responder",
       evidence: "AlphaRes · attacker’s server", address: "203.0.113.20", next: "Try Restricted DNS →",
-      caption: "The queries reach the attacker’s server, where AlphaRes reconstructs `secret`. The secret has successfully been transmitted outside the internal network.",
     },
     {
       phase: "compare", title: "STOPPING THE SAME TRANSFER", observer: "firewall",
       evidence: "Firewall · same queries, two policies", address: "192.168.1.1", next: "Restart ↻",
-      caption: "Now DNS requests can only go to approved servers. The attacker’s server at `203.0.113.20` isn’t on the list, so this transfer is stopped.",
     },
   ];
 
-  const caption = $("#alpha-explanation");
-  const captionMeasure = document.createElement("p");
-  captionMeasure.className = "alpha-caption-measure";
-  captionMeasure.setAttribute("aria-hidden", "true");
-  caption.parentElement.append(captionMeasure);
-  let captionSizeKey = "";
-  let captionFrame = 0;
-
-  function writeAlphaCaption(target, text) {
-    target.replaceChildren(...text.split(/`([^`]+)`/g).map((part, index) => {
-      if (index % 2 === 0) return document.createTextNode(part);
-      const code = document.createElement("code");
-      code.textContent = part;
-      return code;
-    }));
-  }
-
-  // Reserve the tallest paragraph at the actual font and width, independent of stage.
-  function measureAlphaCaptions() {
-    const width = caption.getBoundingClientRect().width;
-    if (!width) return;
-    const style = getComputedStyle(caption);
-    const key = `${width}:${style.font}:${style.letterSpacing}`;
-    if (captionSizeKey === key) return;
-    captionSizeKey = key;
-    captionMeasure.style.width = `${width}px`;
-    let height = Number.parseFloat(style.lineHeight) * 3;
-    steps.forEach((step) => {
-      writeAlphaCaption(captionMeasure, step.caption);
-      height = Math.max(height, captionMeasure.getBoundingClientRect().height);
-    });
-    alphaPreview.style.setProperty("--alpha-caption-height", `${Math.ceil(height)}px`);
-  }
-
-  function scheduleCaptionMeasurement() {
-    cancelAnimationFrame(captionFrame);
-    captionFrame = requestAnimationFrame(measureAlphaCaptions);
-  }
+  const captions = alphaPreview.querySelectorAll("[data-alpha-caption]");
 
   function renderAlpha() {
     const step = steps[stepIndex];
@@ -92,32 +50,21 @@ if (alphaPreview && alphaNext) {
       node.classList.toggle("is-current", node.dataset.alphaNode === step.observer);
     });
     alphaNext.textContent = step.next;
-    writeAlphaCaption(caption, step.caption);
-    $("#alpha-status").textContent = `Step ${stepIndex + 1} of ${steps.length}. ${caption.textContent}`;
+    let captionText = "";
+    for (const caption of captions) {
+      const isActive = caption.dataset.alphaCaption === step.phase;
+      caption.classList.toggle("is-active", isActive);
+      if (isActive) captionText = caption.textContent;
+    }
+    $("#alpha-status").textContent = `Step ${stepIndex + 1} of ${steps.length}. ${captionText}`;
   }
 
   alphaNext.addEventListener("click", () => {
     stepIndex = (stepIndex + 1) % steps.length;
     renderAlpha();
   });
-  if ("ResizeObserver" in window) {
-    const captionObserver = new ResizeObserver(scheduleCaptionMeasurement);
-    captionObserver.observe(alphaPreview);
-    captionObserver.observe(caption);
-  } else {
-    addEventListener("resize", scheduleCaptionMeasurement);
-  }
-  if (document.fonts) {
-    const refreshCaptionFont = () => {
-      captionSizeKey = "";
-      scheduleCaptionMeasurement();
-    };
-    document.fonts.ready.then(refreshCaptionFont);
-    document.fonts.addEventListener("loadingdone", refreshCaptionFont);
-  }
   renderAlpha();
   alphaNext.hidden = false;
-  measureAlphaCaptions();
 }
 
 const portfolioPreview = $(".portfolio-preview");
@@ -519,6 +466,8 @@ $("#copy-email").addEventListener("click", async (event) => {
 });
 const pageSections = $$("main > section");
 const mainNavLinks = $$(".sidebar nav > a");
+const SIDEBAR_ACTIVATION_OFFSET = 24;
+let sidebarActivationLine;
 let navUpdatePending = false;
 
 function sectionAtScrollLine(sections, line) {
@@ -533,12 +482,10 @@ function sectionAtScrollLine(sections, line) {
 function updateSidebar() {
   navUpdatePending = false;
   const root = document.documentElement;
-  // Include the section's scroll margin so a native fragment jump activates it.
-  const line = parseFloat(getComputedStyle(root).scrollPaddingTop) + 24;
   const atBottom = scrollY > 0 && scrollY + innerHeight >= root.scrollHeight - 1;
   const section = atBottom
     ? pageSections[pageSections.length - 1]
-    : sectionAtScrollLine(pageSections, line);
+    : sectionAtScrollLine(pageSections, sidebarActivationLine);
   const activeHash = thoughtSlug() !== null ? "#notes" : `#${section.id}`;
   for (const link of mainNavLinks) {
     const active = link.hash === activeHash;
@@ -554,12 +501,19 @@ function scheduleSidebarUpdate() {
   requestAnimationFrame(updateSidebar);
 }
 
+function refreshSidebarActivationLine() {
+  // Include the section's scroll margin so a native fragment jump activates it.
+  const scrollPadding = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
+  sidebarActivationLine = scrollPadding + SIDEBAR_ACTIVATION_OFFSET;
+  scheduleSidebarUpdate();
+}
+
 addEventListener("scroll", scheduleSidebarUpdate, { passive: true });
-addEventListener("resize", scheduleSidebarUpdate);
+addEventListener("resize", refreshSidebarActivationLine);
 addEventListener("hashchange", scheduleSidebarUpdate);
-addEventListener("pageshow", scheduleSidebarUpdate);
+addEventListener("pageshow", refreshSidebarActivationLine);
 if ("ResizeObserver" in window) {
   new ResizeObserver(scheduleSidebarUpdate).observe($("main"));
 }
-scheduleSidebarUpdate();
+refreshSidebarActivationLine();
 void syncThoughtRoute();

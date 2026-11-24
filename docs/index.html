@@ -159,7 +159,11 @@
 							<div class="alpha-host" data-alpha-node="generator">
 								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="10" y="3" width="40" height="28" rx="2"/><path d="M10 31L3 39H57L50 31M24 35H36"/></svg>
 								<strong>AlphaGen</strong><code>192.168.1.20</code><span>Compromised PC</span>
-								<div class="alpha-credential"><span>Sensitive data</span><code aria-label="secret"><span data-alpha-byte="0">s</span><span data-alpha-byte="1">e</span><span data-alpha-byte="2">c</span><span data-alpha-byte="3">r</span><span data-alpha-byte="4">e</span><span data-alpha-byte="5">t</span></code></div>
+								<div class="alpha-credential">
+									<span>Sensitive data</span>
+									<span class="sr-only">secret</span>
+									<code aria-hidden="true"><span data-alpha-byte="0">s</span><span data-alpha-byte="1">e</span><span data-alpha-byte="2">c</span><span data-alpha-byte="3">r</span><span data-alpha-byte="4">e</span><span data-alpha-byte="5">t</span></code>
+								</div>
 							</div>
 							<div class="alpha-host" data-alpha-node="firewall">
 								<svg viewBox="0 0 60 44" aria-hidden="true"><rect x="5" y="1" width="50" height="42" rx="2"/><path d="M5 15H55M5 29H55M21 1V15M40 15V29M21 29V43"/></svg>
@@ -181,7 +185,12 @@
 									<div><span>Monitored channels</span><strong>Email · file uploads</strong></div>
 								</div>
 								<div data-alpha-view="capture" hidden>
-									<div class="alpha-suffixes"><span>Query suffixes</span><code aria-label="secret"><span>s</span><span>e</span><span>c</span><span>r</span><span>e</span><span>t</span></code><span class="alpha-transport">DNS · UDP/53</span></div>
+									<div class="alpha-suffixes">
+										<span>Query suffixes</span>
+										<span class="sr-only">secret</span>
+										<code aria-hidden="true"><span>s</span><span>e</span><span>c</span><span>r</span><span>e</span><span>t</span></code>
+										<span class="alpha-transport">DNS · UDP/53</span>
+									</div>
 									<table aria-label="Outgoing DNS queries captured on AlphaGen, 192.168.1.20">
 										<thead><tr><th scope="col">Time</th><th scope="col">DNS query name</th></tr></thead>
 										<tbody id="alpha-capture-data">
@@ -219,7 +228,16 @@
 							</div>
 						</div>
 						<div class="alpha-preview-footer">
-							<div class="alpha-readout"><span id="alpha-step-title">A SYSTEM IS COMPROMISED</span><p id="alpha-explanation">An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.</p></div>
+							<div class="alpha-readout">
+								<span id="alpha-step-title">A SYSTEM IS COMPROMISED</span>
+								<div class="alpha-captions">
+									<p class="is-active" data-alpha-caption="prepare">An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.</p>
+									<p data-alpha-caption="capture">DNS normally looks up website addresses. AlphaGen hides <code>secret</code> in the query names, one character at a time. Wireshark records the requests sent to the attacker’s server.</p>
+									<p data-alpha-caption="policy">Here, the firewall checks addresses and ports but doesn’t inspect the DNS query names. The hidden data passes through unnoticed.</p>
+									<p data-alpha-caption="outcome">The queries reach the attacker’s server, where AlphaRes reconstructs <code>secret</code>. The secret has successfully been transmitted outside the internal network.</p>
+									<p data-alpha-caption="compare">Now DNS requests can only go to approved servers. The attacker’s server at <code>203.0.113.20</code> isn’t on the list, so this transfer is stopped.</p>
+								</div>
+							</div>
 							<p class="sr-only" id="alpha-status" role="status" aria-live="polite" aria-atomic="true">Step 1 of 5. An attacker has gained access to an internal system and wants to steal its secrets. Email and uploads could be flagged and blocked, so they turn to DNS.</p>
 							<button type="button" id="alpha-next" aria-controls="alpha-status alpha-evidence" hidden>Encode in DNS →</button>
 						</div>

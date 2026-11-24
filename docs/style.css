@@ -821,24 +821,24 @@ h2 {
   font: 8px/14px var(--mono);
   letter-spacing: 0.5px;
 }
-.alpha-readout p {
+.alpha-captions {
+  display: grid;
+  min-block-size: calc(3 * var(--alpha-caption-leading));
+}
+.alpha-captions > p {
+  grid-area: 1 / 1;
+  visibility: hidden;
   margin: 0;
   color: var(--alpha-ink);
   font-size: 13px;
   line-height: var(--alpha-caption-leading);
-  min-block-size: var(--alpha-caption-height, calc(3 * var(--alpha-caption-leading)));
 }
-.alpha-readout p code {
+.alpha-captions > .is-active {
+  visibility: visible;
+}
+.alpha-captions code {
   color: var(--alpha-data);
   font-family: var(--mono);
-}
-.alpha-readout .alpha-caption-measure {
-  position: absolute;
-  top: 0;
-  left: 0;
-  visibility: hidden;
-  pointer-events: none;
-  min-block-size: 0;
 }
 #alpha-next {
   width: 160px;
@@ -997,7 +997,7 @@ h2 {
     min-height: 0;
     padding: 12px;
   }
-  .alpha-readout p {
+  .alpha-captions > p {
     font-size: 12px;
   }
   .alpha-readout {
@@ -1008,7 +1008,7 @@ h2 {
     grid-row: 1;
     margin-bottom: 0;
   }
-  #alpha-explanation {
+  .alpha-captions {
     grid-column: 1 / -1;
     grid-row: 2;
   }
