@@ -67,24 +67,6 @@ if (alphaPreview && alphaNext) {
   alphaNext.hidden = false;
 }
 
-const portfolioPreview = $(".portfolio-preview");
-const portfolioBreakpoints = $$("[data-preview-breakpoint]");
-const portfolioLayouts = {
-  375: "Mobile",
-  768: "Tablet",
-  1440: "Desktop",
-};
-portfolioBreakpoints.forEach((button) => {
-  button.addEventListener("click", () => {
-    const width = button.dataset.previewBreakpoint;
-    portfolioPreview.dataset.previewWidth = width;
-    portfolioBreakpoints.forEach((option) => {
-      option.setAttribute("aria-pressed", String(option === button));
-    });
-    portfolioPreview.querySelector(".portfolio-preview-caption").textContent =
-      `${portfolioLayouts[width]} layout · ${width}px reference`;
-  });
-});
 // One archived comparison, embedded beside its static SVG fallback.
 const hdbPreview = $("#hdb-preview");
 if (hdbPreview) {
