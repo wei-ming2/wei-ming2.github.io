@@ -1,71 +1,7 @@
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
-// One documented DNS exercise, followed by an illustrative policy comparison.
-const alphaPreview = $("#alpha-preview");
-const alphaNext = $("#alpha-next");
-if (alphaPreview && alphaNext) {
-  let stepIndex = 0;
-  const steps = [
-    {
-      phase: "prepare", title: "A SYSTEM IS COMPROMISED", observer: "generator",
-      evidence: "AlphaGen · compromised computer", address: "192.168.1.20", next: "Encode in DNS →",
-    },
-    {
-      phase: "capture", title: "HIDING THE SECRET IN DNS", observer: "generator",
-      evidence: "Wireshark · capture on AlphaGen", address: "192.168.1.20", next: "Check policy →",
-    },
-    {
-      phase: "policy", title: "THE DATA GOES UNNOTICED", observer: "firewall",
-      evidence: "Firewall · baseline decision", address: "192.168.1.1", next: "Verify receiver →",
-    },
-    {
-      phase: "outcome", title: "THE SECRET ARRIVES", observer: "responder",
-      evidence: "AlphaRes · attacker’s server", address: "203.0.113.20", next: "Try Restricted DNS →",
-    },
-    {
-      phase: "compare", title: "STOPPING THE SAME TRANSFER", observer: "firewall",
-      evidence: "Firewall · same queries, two policies", address: "192.168.1.1", next: "Restart ↻",
-    },
-  ];
 
-  const captions = alphaPreview.querySelectorAll("[data-alpha-caption]");
-
-  function renderAlpha() {
-    const step = steps[stepIndex];
-    const compared = step.phase === "compare";
-    const received = step.phase === "outcome";
-    alphaPreview.dataset.phase = step.phase;
-    alphaPreview.dataset.policy = compared ? "restricted" : "baseline";
-    alphaPreview.dataset.observer = step.observer;
-    $("#alpha-progress").textContent = `${stepIndex + 1} / ${steps.length}`;
-    $("#alpha-step-title").textContent = step.title;
-    $("#alpha-evidence-title").textContent = step.evidence;
-    $("#alpha-evidence-address").textContent = step.address;
-    $("#alpha-rule-state").textContent = compared ? "Restricted DNS" : "Baseline";
-    $("#alpha-buffer").textContent = compared ? "No data" : received ? "secret" : "Empty";
-    alphaPreview.querySelectorAll("[data-alpha-view]").forEach((view) => {
-      view.hidden = view.dataset.alphaView !== step.phase;
-    });
-    alphaPreview.querySelectorAll("[data-alpha-node]").forEach((node) => {
-      node.classList.toggle("is-current", node.dataset.alphaNode === step.observer);
-    });
-    alphaNext.textContent = step.next;
-    let captionText = "";
-    for (const caption of captions) {
-      const isActive = caption.dataset.alphaCaption === step.phase;
-      caption.classList.toggle("is-active", isActive);
-      if (isActive) captionText = caption.textContent;
-    }
-    $("#alpha-status").textContent = `Step ${stepIndex + 1} of ${steps.length}. ${captionText}`;
-  }
-
-  alphaNext.addEventListener("click", () => {
-    stepIndex = (stepIndex + 1) % steps.length;
-    renderAlpha();
-  });
-  renderAlpha();
-  alphaNext.hidden = false;
-}
+initProjects();
 
 // One archived comparison, embedded beside its static SVG fallback.
 const hdbPreview = $("#hdb-preview");
